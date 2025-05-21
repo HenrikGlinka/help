@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "../assets/fonts/inter/fontface.css";
+@import "./variables.css";
+@import "./layout.css";

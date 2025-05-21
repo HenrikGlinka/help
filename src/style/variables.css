@@ -1,0 +1,10 @@
+:root {
+    --default-color-light-green: #45c49c;
+    --default-color-light-gray: #f8fafb;
+    --default-color-gray: #eaeef4;
+
+    --default-font: Inter;
+    --default-background-color: var(--default-color-light-gray);
+    --default-border-color: var(--default-color-gray);
+    --default-button-color: var(--default-color-light-green);
+}
