@@ -1,0 +1,20 @@
+    :root {
+        --animate-popup-bottom: 5s ease-in-out popup-bottom forwards;
+    }
+
+    @keyframes popup-bottom {
+        0% {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        10%, 90% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }

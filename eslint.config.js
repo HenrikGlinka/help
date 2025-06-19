@@ -16,6 +16,12 @@ export default [
         sourceType: 'module',
       },
     },
+    env: {
+      "node": true,
+      "commonjs": true,
+      "browser": true,
+      "es6": true
+    },
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,

@@ -1,10 +1,20 @@
 :root {
-    --default-color-light-green: #45c49c;
-    --default-color-light-gray: #f8fafb;
-    --default-color-gray: #eaeef4;
+    --color-light-green: #45c49c;
+    --color-light-gray: #f1f3f4;
+    --color-gray: #ebedee;
+    --color-dark-gray: #708090;
+    --color-red: #c44545;
 
-    --default-font: Inter;
-    --default-background-color: var(--default-color-light-gray);
-    --default-border-color: var(--default-color-gray);
-    --default-button-color: var(--default-color-light-green);
+    --font: Inter;
+    --background-color: var(--color-light-gray);
+    --border-color: var(--color-gray);
+    
+    --button-color: var(--color-light-green);
+    --button-cancel-color: var(--color-red);
+
+    --input-background-color: var(--color-light-gray);
+    --input-disabled-color: var(--color-dark-gray);
+
+
+    
 }

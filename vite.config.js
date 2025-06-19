@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: './',
 
-  plugins: [react(), pagesPlugin(), tailwindcss()],
+  plugins: [react(), pagesPlugin({exclude: ['**/api/*']}), tailwindcss()],
 
   build: {
     emptyOutDir: true,
