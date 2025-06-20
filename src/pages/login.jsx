@@ -38,7 +38,7 @@ export default function LoginPage() {
 
             localStorage.setItem('token', result.token);
 
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/'), 1000);
         } else {
             const error = await response.json();
             form.inert = false;
@@ -68,8 +68,11 @@ export default function LoginPage() {
                         <span>Adgangskode</span>
                         <input type="password" name="password" placeholder="Skriv din adgangskode" />
                     </label>
-                
-                    <button ref={submitButton} type="submit"><span>Log ind</span><PiSpinner className='animate-spin hidden m-auto' size={24} /></button>
+
+                    <button ref={submitButton} className="approve" type="submit">
+                        <span>Log ind</span>
+                        <PiSpinner className='animate-spin hidden m-auto' size={20} />
+                    </button>
 
                 </form>
                 <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du ikke en konto?</p>

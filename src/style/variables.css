@@ -4,12 +4,14 @@
     --color-gray: #ebedee;
     --color-dark-gray: #708090;
     --color-red: #c44545;
+    --color-blue: #4578c4;
 
     --font: Inter;
     --background-color: var(--color-light-gray);
     --border-color: var(--color-gray);
     
-    --button-color: var(--color-light-green);
+    --button-color: var(--color-blue);
+    --button-approve-color: var(--color-light-green);
     --button-cancel-color: var(--color-red);
 
     --input-background-color: var(--color-light-gray);

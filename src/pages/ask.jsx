@@ -23,13 +23,22 @@ export default function LoginPage() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
+        if (data.title === '') {
+            form.inert = false;
+            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i overskrift</AlertTitle>Du skal indtaste en overskrift på dit spørgsmål</Alert>));
+            return;
+        }
+
+        if (data.description === '') {
+            form.inert = false;
+            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i beskrivelse</AlertTitle>Du skal indtaste en beskrivelse af dit spørgsmål</Alert>));
+            return;
+        }
+
         const response = await postRequest(data);
 
-        console.log('Response from postRequest:', response);
-        
-
         if (response.acknowledged) {
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/'), 1000);
         } else {
             const error = await response.json();
             form.inert = false;
@@ -60,7 +69,7 @@ export default function LoginPage() {
                         <span>Beskrivelse</span>
                         <textarea rows={10} name="description" placeholder="Beskriv dit problem"></textarea>
                     </label>
-                    <button ref={submitButton} type="submit"><span>Stil spørgsmål</span><PiSpinner className='animate-spin hidden m-auto' size={24} /></button>
+                    <button className="approve" ref={submitButton} type="submit"><span>Stil spørgsmål</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
                     <button className='cancel' onClick={() => navigate('/')}>Tilbage</button>
 
                 </form>

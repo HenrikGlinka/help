@@ -1,14 +1,14 @@
 
-const BASE_URL = 'http://localhost:3000/';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
-async function fetchData(endpoint, body = null) {
+async function fetchData(endpoint, method = 'GET', body = null) {
 
     const token = localStorage.getItem('token') || '';
 
     const url = new URL(endpoint, BASE_URL);
 
     const options = {
-        method: body ? 'POST' : 'GET',
+        method: method,
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -36,11 +36,16 @@ const getAllRequests = async () => await fetchData('api/requests/all');
 const getOpenRequests = async () => await fetchData('api/requests/all/open');
 const getOpenRequestsByUser = async () => await fetchData('api/requests/open');
 
-const postRequest = async (data) => await fetchData('api/requests', data);
+const postRequest = async (data) => await fetchData('api/requests', 'POST', data);
+
+const startRequest = async (id) => await fetchData(`api/requests/${id}/start`, 'PUT');
+const completeRequest = async (id) => await fetchData(`api/requests/${id}/complete`, 'PUT');
 
 export {
     getAllRequests,
     getOpenRequests,
     getOpenRequestsByUser,
-    postRequest
+    postRequest,
+    startRequest,
+    completeRequest
 };

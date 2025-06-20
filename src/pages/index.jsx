@@ -4,6 +4,8 @@ import QueueCard from "../components/queue-card";
 import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
 import { useNavigate } from "react-router";
 import { Alert, AlertTitle, Skeleton } from "@mui/material";
+import { SlLogout } from "react-icons/sl";
+import { LuMessageCircleQuestion } from "react-icons/lu";
 
 export default function IndexPage() {
 
@@ -12,20 +14,20 @@ export default function IndexPage() {
     const navigate = useNavigate();
     const [alertBox, setAlertBox] = useState(null);
 
+    const updateTickets = async () => {
+        const requests = await getOpenRequests();
+        console.log("Fetched requests", requests);
+
+        setTickets(requests);
+    }
+
     useEffect(() => {
         if (firstLoad.current) {
             firstLoad.current = false;
             return;
         }
 
-        const updateTickets = async () => {
-            const requests = await getOpenRequests();
-            console.log("Fetched requests");
-
-            setTickets(requests);
-        }
-
-        let updateInterval = setInterval(updateTickets, 10000);
+        let updateInterval = setInterval(updateTickets, 15000);
 
         updateTickets();
 
@@ -45,6 +47,11 @@ export default function IndexPage() {
         }
     }
 
+    function logout() {
+        localStorage.removeItem('token');
+        navigate('/login');
+    }
+
 
     return (
         <>
@@ -55,7 +62,7 @@ export default function IndexPage() {
                     {
                         tickets ?
                             (tickets.length > 0 ?
-                                tickets.map((ticketData, index) => <QueueCard key={index} ticket={ticketData} />)
+                                tickets.map((ticketData, index) => <QueueCard key={index} ticket={ticketData} onUpdate={updateTickets} />)
                                 : <p className="text-center text-gray-500 p-3 italic">Ingen åbne spørgsmål</p>)
                             :
                             <>
@@ -65,8 +72,11 @@ export default function IndexPage() {
                             </>
                     }
                 </div>
+                <menu className="grid grid-cols-[1fr_2fr] gap-2 mt-auto ">
+                    <li><button onClick={logout} className="cancel w-full"><SlLogout className="mr-1" size={20} />Log ud</button></li>
+                    <li><button onClick={() => askNewQuestion()} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
+                </menu>
 
-                <button onClick={() => askNewQuestion()} className="mt-auto">Nyt spørgsmål</button>
                 {alertBox}
             </main>
         </>

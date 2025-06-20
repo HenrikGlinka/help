@@ -45,6 +45,7 @@ summary::before {
   content: '›';
   margin-right: .4rem;
   font-size: 1.5rem;
+  line-height: 1rem;
   font-weight: normal;
   font-family: inherit;
   margin-right: 0.5rem;
@@ -65,10 +66,16 @@ button {
   border-radius: 999rem;
   padding: .5rem;
   color: white;
-  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transition: transform 100ms ease-in;
   font-size: 0.875rem;
   font-weight: bold;
+}
+
+button.approve {
+  background-color: var(--button-approve-color);
 }
 
 button.cancel {

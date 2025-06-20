@@ -1,5 +1,6 @@
+import { SlLogout } from "react-icons/sl";
 
-export default function Header({title}) {
+export default function Header({ title }) {
 
 
     return (

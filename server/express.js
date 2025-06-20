@@ -43,7 +43,7 @@ app.post('/api/users/register', async (request, response) => {
 
     const inviteData = await inviteCollection.findOne({ code: invite });
     if (!inviteData) return response.status(400).json({ error: 'Ugyldig invitationsnøgle' });
-    
+
 
     const existingUser = await userCollection.findOne({ username: username.toLowerCase() });
 
@@ -88,19 +88,24 @@ app.post('/api/users/login', async (request, response) => {
         return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
     }
 
-    const token = jwt.sign({ user: { id: userData._id, username: userData.username } }, process.env.JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
     response.json({ token });
     await client.close();
 
 });
 
-app.get('/api/requests/all', authenticationMiddleware, async (_, response) => {
+app.get('/api/requests/all', authenticationMiddleware, async (request, response) => {
     try {
         await client.connect();
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find().toArray();
+
+        requests.forEach(result => {
+            result.isOwner = result.user_id.toString() === request.user.id;
+            result.isAdmin = request.user.role === 'admin';
+        });
 
         response.json(requests);
     } catch (error) {
@@ -127,6 +132,11 @@ app.get('/api/requests/open', authenticationMiddleware, async (request, response
 
         const requests = await collection.find(query).toArray();
 
+        requests.forEach(result => {
+            result.isOwner = result.user_id.toString() === request.user.id;
+            result.isAdmin = request.user.role === 'admin';
+        });
+
         response.json(requests);
     } catch (error) {
         console.error('Error fetching open requests:', error);
@@ -143,6 +153,12 @@ app.get('/api/requests/all/open', authenticationMiddleware, async (request, resp
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find({ completion_date: { $exists: false } }).toArray();
+
+
+        requests.forEach(result => {
+            result.isOwner = result.user_id.toString() === request.user.id;
+            result.isAdmin = request.user.role === 'admin';
+        });
 
         response.json(requests);
     } catch (error) {
@@ -176,6 +192,81 @@ app.post('/api/requests', authenticationMiddleware, async (request, response) =>
         response.status(201).json(result);
     } catch (error) {
         console.error('Error creating request:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await client.close();
+    }
+});
+
+app.put('/api/requests/:id/start', authenticationMiddleware, async (request, response) => {
+    const requestId = request.params.id;
+
+    if (!requestId) return response.status(400).json({ error: 'Request ID is required.' });
+    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Invalid request ID format.' });
+    if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
+
+    try {
+        await client.connect();
+        const database = client.db(DB_NAME);
+        const collection = database.collection('requests');
+
+        const result = await collection.updateOne(
+            { _id: new ObjectId(requestId) },
+            {
+                $set: {
+                    response_date: new Date(),
+                }
+            }
+        );
+        if (result.modifiedCount === 0) {
+            return response.status(404).json({ error: 'Request not found or already started.' });
+        }
+        response.status(200).json({ message: 'Request marked as started.' });
+    } catch (error) {
+        console.error('Error starting request:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await client.close();
+    }
+});
+
+
+app.put('/api/requests/:id/complete', authenticationMiddleware, async (request, response) => {
+    const requestId = request.params.id;
+
+    if (!requestId) return response.status(400).json({ error: 'Request ID is required.' });
+    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Invalid request ID format.' });
+
+
+
+    try {
+        await client.connect();
+        const database = client.db(DB_NAME);
+        const collection = database.collection('requests');
+
+        const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
+        if (!existingRequest) return response.status(404).json({ error: 'Request not found.' });
+        if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
+            return response.status(403).json({ error: 'Du har ikke rettighedder til at fuldføre denne anmodning.' });
+        }
+
+        const result = await collection.updateOne(
+            { _id: new ObjectId(requestId) },
+            {
+                $set: {
+                    completion_date: new Date(),
+                }
+            }
+        );
+
+        if (result.modifiedCount === 0) {
+            return response.status(404).json({ error: 'Request not found or already completed.' });
+        }
+        response.status(200).json({ message: 'Request marked as completed.' });
+    } catch (error) {
+        console.error('Error completing request:', error);
         response.status(500).json({ error: 'Internal Server Error' });
     }
     finally {

@@ -92,10 +92,10 @@ export default function RegisterPage() {
 
                     <label>
                         <span>Invitationsnøgle</span>
-                        <input type="text" name="invite" placeholder="Skriv din invitationsnøgle" autoComplete='off' />
+                        <input className="!font-mono" type="text" name="invite" placeholder="Skriv din invitationsnøgle" autoComplete='off' />
                     </label>
 
-                    <button ref={submitButton} type="submit"><span>Opret bruger</span><PiSpinner className='animate-spin hidden m-auto' size={24} /></button>
+                    <button ref={submitButton} type="submit"><span>Opret bruger</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
               
                 </form>
                 <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du allerede en konto?</p>
