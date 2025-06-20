@@ -42,6 +42,7 @@ export {
     getOpenRequests,
     getOpenRequestsByUser,
     postRequest,
+    postRegister,
     postLogin,
     startRequest,
     completeRequest
