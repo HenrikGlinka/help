@@ -3,6 +3,7 @@ import Header from '../components/header';
 import { PiSpinner } from 'react-icons/pi';
 import { Alert, AlertTitle } from '@mui/material';
 import { Link, useNavigate } from 'react-router';
+import { postRegister } from '../helpers/api';
 
 export default function RegisterPage() {
 
@@ -45,17 +46,13 @@ export default function RegisterPage() {
         console.log(response);
         
 
-        if (response.ok) {
-            const result = await response.json();
+        if (!response?.error) {
             form.reset();
             setAlertBox(<Alert variant="filled" severity="success"><AlertTitle>Registrering gennemført</AlertTitle>Din bruger er nu oprettet. Du kan nu logge ind.</Alert>);
             setTimeout(() => navigate(`/login?user=${data.username}`), 2000);
         } else {
-            const error = await response.json();
             form.inert = false;
-            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Registrering fejlede</AlertTitle>{error.error}</Alert>);
-            console.log(error);
-            
+            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Registrering fejlede</AlertTitle>{response.error}</Alert>);
         }
 
     }
