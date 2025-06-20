@@ -175,6 +175,14 @@ app.post('/api/requests', authenticationMiddleware, async (request, response) =>
         return response.status(400).json({ error: 'Titel og beskrivelse er påkrævet.' });
     }
 
+    if (title.length > 30) {
+        return response.status(400).json({ error: 'Titel må ikke overstige 30 tegn.' });
+    }
+
+    if (description.length > 200) {
+        return response.status(400).json({ error: 'Beskrivelse må ikke overstige 200 tegn.' });
+    }
+
     try {
         await client.connect();
         const database = client.db(DB_NAME);
