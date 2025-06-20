@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
 import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
@@ -10,7 +10,6 @@ import { LuMessageCircleQuestion } from "react-icons/lu";
 export default function IndexPage() {
 
     const [tickets, setTickets] = useState(null);
-    const firstLoad = useRef(true);
     const navigate = useNavigate();
     const [alertBox, setAlertBox] = useState(null);
 
@@ -22,8 +21,8 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        if (firstLoad.current) {
-            firstLoad.current = false;
+        if (localStorage.getItem('token') === null) {
+            navigate('/login');
             return;
         }
 
@@ -41,7 +40,11 @@ export default function IndexPage() {
         const openQuestions = await getOpenRequestsByUser();
 
         if (openQuestions.length > 0) {
-            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Vent venligst</AlertTitle>Du har allerede et åbent spørgsmål. Du kan ikke oprette et nyt spørgsmål før det nuværende er besvaret.</Alert>));
+            setTimeout(() => setAlertBox(
+                <Alert variant="filled" severity="warning">
+                    <AlertTitle>Vent venligst</AlertTitle>
+                    Du har allerede et åbent spørgsmål. Du kan ikke oprette et nyt spørgsmål før det nuværende er besvaret.
+                </Alert>));
         } else {
             navigate('/ask');
         }
