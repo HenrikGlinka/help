@@ -7,10 +7,14 @@ import { postRequest } from '../helpers/api';
 
 export default function LoginPage() {
 
+    const MAX_DESCRIPTION_LENGTH = 200;
+
     const submitButton = useRef(null);
     const [alertBox, setAlertBox] = useState(null);
+    const [characterCount, setCharacterCount] = useState(0);
 
     const navigate = useNavigate();
+
 
     async function submitHandler(event) {
         event.preventDefault();
@@ -40,9 +44,8 @@ export default function LoginPage() {
         if (response.acknowledged) {
             setTimeout(() => navigate('/'), 1000);
         } else {
-            const error = await response.json();
             form.inert = false;
-            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Fejl i oprrettelse af spørgsmål</AlertTitle>{error.error}</Alert>);
+            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Fejl i oprrettelse af spørgsmål</AlertTitle>{response.error}</Alert>);
         }
 
     }
@@ -67,7 +70,8 @@ export default function LoginPage() {
 
                     <label>
                         <span>Beskrivelse</span>
-                        <textarea rows={10} name="description" placeholder="Beskriv dit problem"></textarea>
+                        <textarea onInput={event => setCharacterCount(event.target.value.length)} rows={10} maxLength={MAX_DESCRIPTION_LENGTH} name="description" placeholder="Beskriv dit problem"></textarea>
+                        <span className='text-xs text-gray-500 text-right'>{characterCount} / {MAX_DESCRIPTION_LENGTH} tegn</span>
                     </label>
                     <button className="approve" ref={submitButton} type="submit"><span>Stil spørgsmål</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
                     <button className='cancel' onClick={() => navigate('/')}>Tilbage</button>

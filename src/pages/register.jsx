@@ -49,7 +49,7 @@ export default function RegisterPage() {
         if (!response?.error) {
             form.reset();
             setAlertBox(<Alert variant="filled" severity="success"><AlertTitle>Registrering gennemført</AlertTitle>Din bruger er nu oprettet. Du kan nu logge ind.</Alert>);
-            setTimeout(() => navigate(`/login?user=${data.username}`), 2000);
+            setTimeout(() => navigate(`/login?user=${data.username}`), 3000);
         } else {
             form.inert = false;
             setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Registrering fejlede</AlertTitle>{response.error}</Alert>);
