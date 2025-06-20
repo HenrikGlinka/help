@@ -3,6 +3,7 @@ import Header from '../components/header';
 import { PiSpinner } from 'react-icons/pi';
 import { Alert, AlertTitle } from '@mui/material';
 import { Link, useNavigate, useSearchParams } from 'react-router';
+import { postLogin } from '../helpers/api';
 
 export default function LoginPage() {
 
@@ -25,24 +26,15 @@ export default function LoginPage() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        const response = await fetch('http://localhost:3000/api/users/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
+        const response = await postLogin(data);
 
-        if (response.ok) {
-            const result = await response.json();
 
-            localStorage.setItem('token', result.token);
-
+        if (response?.token !== undefined) {
+            localStorage.setItem('token', response.token);
             setTimeout(() => navigate('/'), 1000);
         } else {
-            const error = await response.json();
             form.inert = false;
-            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Kunne ikke logge ind</AlertTitle>{error.error}</Alert>);
+            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Kunne ikke logge ind</AlertTitle>{response?.error ?? 'Der opstod en fejl under login'}</Alert>);
         }
 
     }
@@ -77,7 +69,6 @@ export default function LoginPage() {
                 </form>
                 <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du ikke en konto?</p>
                 <Link to="/register" className="text-green-500 text-center underline">Opret dig her</Link>
-
 
                 {alertBox}
             </main>

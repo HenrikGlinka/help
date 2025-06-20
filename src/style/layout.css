@@ -105,6 +105,11 @@ input, select {
 input::placeholder, textarea::placeholder {
   font-style: italic;
   font-size: .8rem;
+  font-family: var(--font);
+}
+
+input.key {
+  font-family: 'Courier New', Courier, monospace;
 }
 
 input:disabled,

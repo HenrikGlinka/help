@@ -19,13 +19,7 @@ async function fetchData(endpoint, method = 'GET', body = null) {
     try {
         const response = await fetch(url, options);
 
-        switch (response.status) {
-            case 200: 
-            case 201: 
-            return await response.json();
-            case 401: window.location.href = '/login'; break;
-            default: console.log(`Response status: ${response.status}`);
-        }
+       return await response.json();
 
     } catch (error) {
         throw error;
@@ -37,6 +31,8 @@ const getOpenRequests = async () => await fetchData('api/requests/all/open');
 const getOpenRequestsByUser = async () => await fetchData('api/requests/open');
 
 const postRequest = async (data) => await fetchData('api/requests', 'POST', data);
+const postRegister = async (data) => await fetchData('api/users/register', 'POST', data);
+const postLogin = async (data) => await fetchData('api/users/login', 'POST', data);
 
 const startRequest = async (id) => await fetchData(`api/requests/${id}/start`, 'PUT');
 const completeRequest = async (id) => await fetchData(`api/requests/${id}/complete`, 'PUT');
@@ -46,6 +42,7 @@ export {
     getOpenRequests,
     getOpenRequestsByUser,
     postRequest,
+    postLogin,
     startRequest,
     completeRequest
 };

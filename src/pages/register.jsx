@@ -40,13 +40,10 @@ export default function RegisterPage() {
             return;
         }
         
-        const response = await fetch('http://localhost:3000/api/users/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
+        const response = await postRegister(data);
+
+        console.log(response);
+        
 
         if (response.ok) {
             const result = await response.json();
@@ -92,10 +89,10 @@ export default function RegisterPage() {
 
                     <label>
                         <span>Invitationsnøgle</span>
-                        <input className="!font-mono" type="text" name="invite" placeholder="Skriv din invitationsnøgle" autoComplete='off' />
+                        <input className="key" type="text" name="invite" placeholder="Skriv din invitationsnøgle" autoComplete='off' />
                     </label>
 
-                    <button ref={submitButton} type="submit"><span>Opret bruger</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
+                    <button ref={submitButton} className="approve" type="submit"><span>Opret bruger</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
               
                 </form>
                 <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du allerede en konto?</p>
