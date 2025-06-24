@@ -47,7 +47,8 @@ export default function IndexPage() {
                 <Alert variant="filled" severity="warning">
                     <AlertTitle>Vent venligst</AlertTitle>
                     Du har allerede et åbent spørgsmål. Du kan ikke oprette et nyt spørgsmål før det nuværende er besvaret.
-                </Alert>));
+                </Alert>
+            ));
         } else {
             navigate('/ask');
         }

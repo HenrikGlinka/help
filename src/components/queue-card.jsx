@@ -18,10 +18,13 @@ export default function QueueCard({ ticket, onUpdate = null }) {
 
         const response = await startRequest(id);
         if (response) if (onUpdate !== null) {
-            startButton.current.disabled = false;
+
             onUpdate();
         }
-        else console.error("Failed to start request");
+        else {
+            console.error("Failed to start request");
+            startButton.current.disabled = false;
+        }
     }
 
     async function completeRequestHandler(id) {
@@ -33,7 +36,10 @@ export default function QueueCard({ ticket, onUpdate = null }) {
             completeButton.current.disabled = false;
             onUpdate();
         }
-        else console.error("Failed to complete request");
+        else {
+            console.error("Failed to complete request");
+            completeButton.current.disabled = false;
+        }
     }
 
 
