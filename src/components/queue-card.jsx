@@ -2,22 +2,37 @@ import { GoDiscussionClosed } from "react-icons/go";
 import { formatDate } from "../utilities/format-date";
 import { HiOutlineChatBubbleOvalLeftEllipsis } from "react-icons/hi2";
 import { completeRequest, startRequest } from "../helpers/api";
+import { use, useRef } from "react";
 
 export default function QueueCard({ ticket, onUpdate = null }) {
 
     const status = ticket.completion_date ? 'Besvaret' : (ticket.response_date ? 'Aktiv' : 'Afventer');
     const statusColor = ticket.completion_date ? 'bg-gray-500' : (ticket.response_date ? 'bg-green-600' : 'bg-blue-400');
 
+    const startButton = useRef(null);
+    const completeButton = useRef(null);
+
 
     async function startRequestHandler(id) {
+        startButton.current.disabled = true;
+
         const response = await startRequest(id);
-        if (response) if (onUpdate !== null) onUpdate();
+        if (response) if (onUpdate !== null) {
+            startButton.current.disabled = false;
+            onUpdate();
+        }
         else console.error("Failed to start request");
     }
 
     async function completeRequestHandler(id) {
+        completeButton.current.disabled = true;
+
         const response = await completeRequest(id);
-        if (response) if (onUpdate !== null) onUpdate();
+
+        if (response) if (onUpdate !== null) {
+            completeButton.current.disabled = false;
+            onUpdate();
+        }
         else console.error("Failed to complete request");
     }
 
@@ -42,9 +57,23 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                     <menu className="flex justify-end gap-3 col-span-3">
                         <>
                             {!ticket.response_date && ticket.isAdmin && ticket.completion_date === undefined &&
-                                <li><button onClick={() => startRequestHandler(ticket._id)} className="w-min p-2 text-nowrap"><HiOutlineChatBubbleOvalLeftEllipsis className="mr-1" size={20} />Besvar</button></li>
+                                <li>
+                                    <button ref={startButton} onClick={() => startRequestHandler(ticket._id)} className="w-min p-2 text-nowrap">
+                                        {!startButton.current?.disabled ?
+                                            <><HiOutlineChatBubbleOvalLeftEllipsis className="mr-1" size={20} />Besvar</> :
+                                            <PiSpinner className='animate-spin hidden m-auto' size={20} />
+                                        }
+                                    </button>
+                                </li>
                             }
-                            <li><button onClick={() => completeRequestHandler(ticket._id)} className="approve w-min p-2 text-nowrap"><GoDiscussionClosed className="mr-1" size={20} />Løst</button></li>
+                            <li>
+                                <button ref={completeButton} onClick={() => completeRequestHandler(ticket._id)} className="approve w-min p-2 text-nowrap">
+                                    {!completeButton.current?.disabled ?
+                                        <><GoDiscussionClosed className="mr-1" size={20} />Løst</> :
+                                        <PiSpinner className='animate-spin hidden m-auto' size={20} />
+                                    }
+                                </button>
+                            </li>
                         </>
                     </menu>
                 </>

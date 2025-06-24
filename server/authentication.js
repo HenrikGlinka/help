@@ -27,7 +27,7 @@ const authenticationMiddleware = (request, response, next) => {
       ? `Token expired at ${error.expiredAt}`
       : 'Invalid token';
 
-    response.status(401).json({ message });
+    response.status(401).json({ error: message });
   }
 };
 

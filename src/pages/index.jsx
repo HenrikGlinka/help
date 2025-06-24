@@ -15,7 +15,10 @@ export default function IndexPage() {
 
     const updateTickets = async () => {
         const requests = await getOpenRequests();
-        console.log("Fetched requests", requests);
+
+        if (requests.error === 'Invalid token') navigate('/login');
+
+        console.log("Fetched requests");
 
         setTickets(requests);
     }
