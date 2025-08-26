@@ -4,8 +4,8 @@ import cors from 'cors';
 import { MongoClient, ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import authenticationMiddleware from './authentication.js';
-/* import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken'; */
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -33,73 +33,76 @@ export const handler = serverless(app);
 
 
 router.post('/users/register', async (request, response) => {
-    const { invite, username, password } = request.body;
 
-    if (!username || !password) {
-        return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet' });
-    }
+    request.on('data', async data => {
+        const { invite, username, password } = JSON.parse(data.toString());
 
-    await client.connect();
+        if (!username || !password) {
+            return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet' });
+        }
 
-    const database = client.db(DB_NAME);
-    const inviteCollection = database.collection('invites');
-    const userCollection = database.collection('users');
+        await client.connect();
 
-    const inviteData = await inviteCollection.findOne({ code: invite });
-    if (!inviteData) return response.status(400).json({ error: 'Ugyldig invitationsnøgle' });
+        const database = client.db(DB_NAME);
+        const inviteCollection = database.collection('invites');
+        const userCollection = database.collection('users');
+
+        const inviteData = await inviteCollection.findOne({ code: invite });
+        if (!inviteData) return response.status(400).json({ error: 'Ugyldig invitationsnøgle' });
 
 
-    const existingUser = await userCollection.findOne({ username: username.toLowerCase() });
+        const existingUser = await userCollection.findOne({ username: username.toLowerCase() });
 
-    if (existingUser) {
-        return response.status(409).json({ error: 'Brugernavnet findes allerede. Vælg venligst et andet.' });
-    }
+        if (existingUser) {
+            return response.status(409).json({ error: 'Brugernavnet findes allerede. Vælg venligst et andet.' });
+        }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+        const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = {
-        username: username.toLowerCase(),
-        password_hash: passwordHash,
-        created_at: new Date(),
-        invite_code: invite,
-        role: 'user'
-    };
+        const newUser = {
+            username: username.toLowerCase(),
+            password_hash: passwordHash,
+            created_at: new Date(),
+            invite_code: invite,
+            role: 'user'
+        };
 
-    await userCollection.insertOne(newUser);
+        await userCollection.insertOne(newUser);
 
-    await inviteCollection.deleteOne({ code: invite });
+        await inviteCollection.deleteOne({ code: invite });
 
-    response.status(201).json({ message: 'User registered successfully' });
-    await client.close();
+        response.status(201).json({ message: 'User registered successfully' });
+
+    });
 });
 
 router.post('/users/login', async (request, response) => {
-    const { username, password } = request.body;
 
-    if (!username || !password) {
-        return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet.' });
-    }
+    request.on('data', async data => {
+        const { username, password } = JSON.parse(data.toString());
 
-    await client.connect();
+        if (!username || !password) {
+            return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet.' });
+        }
 
-    const database = client.db(DB_NAME);
-    const collection = database.collection('users');
+        await client.connect();
 
-    const userData = await collection.findOne({ username: username.toLowerCase() });
-    const isValidPassword = userData ? await bcrypt.compare(password, userData.password_hash) : false;
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
 
-    if (!userData || !isValidPassword) {
-        return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
-    }
+        const userData = await collection.findOne({ username: username.toLowerCase() });
+        const isValidPassword = userData ? await bcrypt.compare(password, userData.password_hash) : false;
 
-    const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
+        if (!userData || !isValidPassword) {
+            return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
+        }
 
-    response.json({ token });
-    await client.close();
+        const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
+        response.json({ token });
+
+    });
 });
-
-
 
 router.get('/requests/all', authenticationMiddleware, async (request, response) => {
     try {
@@ -118,7 +121,7 @@ router.get('/requests/all', authenticationMiddleware, async (request, response) 
         console.error('Error fetching requests:', error);
         response.status(500).json({ error: 'Internal Server Error' });
     } finally {
-        await client.close();
+
     }
 });
 
@@ -148,7 +151,7 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
         console.error('Error fetching open requests:', error);
         response.status(500).json({ error: 'Internal Server Error' });
     } finally {
-        await client.close();
+
     }
 });
 
@@ -171,49 +174,52 @@ router.get('/requests/all/open', authenticationMiddleware, async (request, respo
         console.error('Error fetching open requests:', error);
         response.status(500).json({ error: 'Internal Server Error' });
     } finally {
-        await client.close();
+
     }
 });
 
-app.post('/requests', authenticationMiddleware, async (request, response) => {
-    const { title, description } = request.body;
-    if (!title || !description) {
-        return response.status(400).json({ error: 'Titel og beskrivelse er påkrævet.' });
-    }
+router.post('/requests', authenticationMiddleware, async (request, response) => {
 
-    if (title.length > 30) {
-        return response.status(400).json({ error: 'Titel må ikke overstige 30 tegn.' });
-    }
+    request.on('data', async data => {
+        const { title, description } = JSON.parse(data.toString());
+        if (!title || !description) {
+            return response.status(400).json({ error: 'Titel og beskrivelse er påkrævet.' });
+        }
 
-    if (description.length > 200) {
-        return response.status(400).json({ error: 'Beskrivelse må ikke overstige 200 tegn.' });
-    }
+        if (title.length > 30) {
+            return response.status(400).json({ error: 'Titel må ikke overstige 30 tegn.' });
+        }
 
-    try {
-        await client.connect();
-        const database = client.db(DB_NAME);
-        const collection = database.collection('requests');
-        const userId = new ObjectId(request.user.id);
-        const newRequest = {
-            title,
-            description,
-            user_id: userId,
-            creation_date: new Date(),
-            owner: request.user.username,
-        };
+        if (description.length > 200) {
+            return response.status(400).json({ error: 'Beskrivelse må ikke overstige 200 tegn.' });
+        }
 
-        const result = await collection.insertOne(newRequest);
-        response.status(201).json(result);
-    } catch (error) {
-        console.error('Error creating request:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await client.close();
-    }
+        try {
+            await client.connect();
+            const database = client.db(DB_NAME);
+            const collection = database.collection('requests');
+            const userId = new ObjectId(request.user.id);
+            const newRequest = {
+                title,
+                description,
+                user_id: userId,
+                creation_date: new Date(),
+                owner: request.user.username,
+            };
+
+            const result = await collection.insertOne(newRequest);
+            response.status(201).json(result);
+        } catch (error) {
+            console.error('Error creating request:', error);
+            response.status(500).json({ error: 'Internal Server Error' });
+        }
+        finally {
+
+        }
+    });
 });
 
-app.put('/requests/:id/start', authenticationMiddleware, async (request, response) => {
+router.put('/requests/:id/start', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
     if (!requestId) return response.status(400).json({ error: 'Request ID is required.' });
@@ -242,12 +248,12 @@ app.put('/requests/:id/start', authenticationMiddleware, async (request, respons
         response.status(500).json({ error: 'Internal Server Error' });
     }
     finally {
-        await client.close();
+
     }
 });
 
 
-app.put('/requests/:id/complete', authenticationMiddleware, async (request, response) => {
+router.put('/requests/:id/complete', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
     if (!requestId) return response.status(400).json({ error: 'Request ID is required.' });
@@ -284,6 +290,6 @@ app.put('/requests/:id/complete', authenticationMiddleware, async (request, resp
         response.status(500).json({ error: 'Internal Server Error' });
     }
     finally {
-        await client.close();
+
     }
 });
