@@ -93,13 +93,22 @@ router.post('/users/login', async (request, response) => {
         const collection = database.collection('users');
 
         const userData = await collection.findOne({ username: username.toLowerCase() });
+
+        console.log('User Data: ', userData);
+
         const isValidPassword = userData ? await bcrypt.compare(password, userData.password_hash) : false;
+
+        console.log('Is Valid Password: ', isValidPassword);
 
         if (!userData || !isValidPassword) {
             return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
         }
 
+        console.log('Login successful for user:', userData.username);
+
         const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
+
+        console.log('Generated JWT Token: ', token);
 
         response.json({ token });
 
