@@ -41,7 +41,7 @@ router.post('/users/register', async (request, response) => {
             return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet' });
         }
 
-        await client.connect();
+        //await client.connect();
 
         const database = client.db(DB_NAME);
         const inviteCollection = database.collection('invites');
@@ -87,7 +87,7 @@ router.post('/users/login', async (request, response) => {
             return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet.' });
         }
 
-        await client.connect();
+        //await client.connect();
 
         const database = client.db(DB_NAME);
         const collection = database.collection('users');
@@ -117,7 +117,7 @@ router.post('/users/login', async (request, response) => {
 
 router.get('/requests/all', authenticationMiddleware, async (request, response) => {
     try {
-        await client.connect();
+        //await client.connect();
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find().toArray();
@@ -138,7 +138,7 @@ router.get('/requests/all', authenticationMiddleware, async (request, response) 
 
 router.get('/requests/open', authenticationMiddleware, async (request, response) => {
     try {
-        await client.connect();
+        //await client.connect();
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const userId = new ObjectId(request.user.id);
@@ -169,7 +169,7 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
 
 router.get('/requests/all/open', authenticationMiddleware, async (request, response) => {
     try {
-        await client.connect();
+        //await client.connect();
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find({ completion_date: { $exists: false } }).toArray();
@@ -206,7 +206,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
         }
 
         try {
-            await client.connect();
+            //await client.connect();
             const database = client.db(DB_NAME);
             const collection = database.collection('requests');
             const userId = new ObjectId(request.user.id);
@@ -238,7 +238,7 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
     if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
 
     try {
-        await client.connect();
+        //await client.connect();
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
 
@@ -273,7 +273,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
 
     try {
-        await client.connect();
+        //await client.connect();
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
 
