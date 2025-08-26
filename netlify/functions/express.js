@@ -79,6 +79,8 @@ router.post('/users/register', async (request, response) => {
 router.post('/users/login', async (request, response) => {
 
     request.on('data', async data => {
+        console.log('Data: ', data.toString());
+        
         const { username, password } = JSON.parse(data.toString());
 
         if (!username || !password) {
