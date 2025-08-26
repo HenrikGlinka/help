@@ -31,6 +31,76 @@ app.use("/api/", router);
 
 export const handler = serverless(app);
 
+
+router.post('/users/register', async (request, response) => {
+    const { invite, username, password } = request.body;
+
+    if (!username || !password) {
+        return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet' });
+    }
+
+    await client.connect();
+
+    const database = client.db(DB_NAME);
+    const inviteCollection = database.collection('invites');
+    const userCollection = database.collection('users');
+
+    const inviteData = await inviteCollection.findOne({ code: invite });
+    if (!inviteData) return response.status(400).json({ error: 'Ugyldig invitationsnøgle' });
+
+
+    const existingUser = await userCollection.findOne({ username: username.toLowerCase() });
+
+    if (existingUser) {
+        return response.status(409).json({ error: 'Brugernavnet findes allerede. Vælg venligst et andet.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const newUser = {
+        username: username.toLowerCase(),
+        password_hash: passwordHash,
+        created_at: new Date(),
+        invite_code: invite,
+        role: 'user'
+    };
+
+    await userCollection.insertOne(newUser);
+
+    await inviteCollection.deleteOne({ code: invite });
+
+    response.status(201).json({ message: 'User registered successfully' });
+    await client.close();
+});
+
+router.post('/users/login', async (request, response) => {
+    const { username, password } = request.body;
+
+    if (!username || !password) {
+        return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet.' });
+    }
+
+    await client.connect();
+
+    const database = client.db(DB_NAME);
+    const collection = database.collection('users');
+
+    const userData = await collection.findOne({ username: username.toLowerCase() });
+    const isValidPassword = userData ? await bcrypt.compare(password, userData.password_hash) : false;
+
+    if (!userData || !isValidPassword) {
+        return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
+    }
+
+    const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
+
+    response.json({ token });
+    await client.close();
+
+});
+
+
+
 router.get('/requests/all', authenticationMiddleware, async (request, response) => {
     try {
         await client.connect();
