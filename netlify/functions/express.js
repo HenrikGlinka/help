@@ -41,7 +41,7 @@ router.post('/users/register', async (request, response) => {
             return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet' });
         }
 
-        //await client.connect();
+        
 
         const database = client.db(DB_NAME);
         const inviteCollection = database.collection('invites');
@@ -79,45 +79,32 @@ router.post('/users/register', async (request, response) => {
 router.post('/users/login', async (request, response) => {
 
     request.on('data', async data => {
-        console.log('Data: ', data.toString());
-        
+
         const { username, password } = JSON.parse(data.toString());
 
         if (!username || !password) {
             return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet.' });
         }
 
-        //await client.connect();
-
         const database = client.db(DB_NAME);
         const collection = database.collection('users');
 
         const userData = await collection.findOne({ username: username.toLowerCase() });
-
-        console.log('User Data: ', userData);
-
         const isValidPassword = userData ? await bcrypt.compare(password, userData.password_hash) : false;
-
-        console.log('Is Valid Password: ', isValidPassword);
 
         if (!userData || !isValidPassword) {
             return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
         }
 
-        console.log('Login successful for user:', userData.username);
-
         const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
-        console.log('Generated JWT Token: ', token);
-
         response.json({ token });
-
     });
 });
 
 router.get('/requests/all', authenticationMiddleware, async (request, response) => {
     try {
-        //await client.connect();
+        
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find().toArray();
@@ -138,7 +125,7 @@ router.get('/requests/all', authenticationMiddleware, async (request, response) 
 
 router.get('/requests/open', authenticationMiddleware, async (request, response) => {
     try {
-        //await client.connect();
+        
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const userId = new ObjectId(request.user.id);
@@ -169,7 +156,7 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
 
 router.get('/requests/all/open', authenticationMiddleware, async (request, response) => {
     try {
-        //await client.connect();
+        
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find({ completion_date: { $exists: false } }).toArray();
@@ -206,7 +193,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
         }
 
         try {
-            //await client.connect();
+            
             const database = client.db(DB_NAME);
             const collection = database.collection('requests');
             const userId = new ObjectId(request.user.id);
@@ -238,7 +225,7 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
     if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
 
     try {
-        //await client.connect();
+        
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
 
@@ -273,7 +260,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
 
     try {
-        //await client.connect();
+        
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
 

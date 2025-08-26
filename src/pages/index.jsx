@@ -29,7 +29,7 @@ export default function IndexPage() {
             return;
         }
 
-        let updateInterval = setInterval(updateTickets, 15000);
+        let updateInterval = setInterval(updateTickets, 10000);
 
         updateTickets();
 
