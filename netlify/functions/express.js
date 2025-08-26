@@ -52,7 +52,7 @@ router.get('/requests/all', authenticationMiddleware, async (request, response) 
     }
 });
 
-app.get('/requests/open', authenticationMiddleware, async (request, response) => {
+router.get('/requests/open', authenticationMiddleware, async (request, response) => {
     try {
         await client.connect();
         const database = client.db(DB_NAME);
@@ -83,7 +83,7 @@ app.get('/requests/open', authenticationMiddleware, async (request, response) =>
 });
 
 
-app.get('/requests/all/open', authenticationMiddleware, async (request, response) => {
+router.get('/requests/all/open', authenticationMiddleware, async (request, response) => {
     try {
         await client.connect();
         const database = client.db(DB_NAME);
