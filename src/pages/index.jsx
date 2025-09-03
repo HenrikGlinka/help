@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
 import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
@@ -6,10 +6,12 @@ import { useNavigate } from "react-router";
 import { Alert, AlertTitle, Skeleton } from "@mui/material";
 import { SlLogout } from "react-icons/sl";
 import { LuMessageCircleQuestion } from "react-icons/lu";
+import messageSound from "../assets/audio/sounds/icq-message.mp3";
 
 export default function IndexPage() {
 
     const [tickets, setTickets] = useState(null);
+    const previousTickets = useRef([]);
     const navigate = useNavigate();
     const [alertBox, setAlertBox] = useState(null);
 
@@ -19,7 +21,22 @@ export default function IndexPage() {
         if (requests.error === 'Invalid token') navigate('/login');
 
         console.log("Fetched requests");
+        console.log(requests);
+        
+        if (requests.length > 0) {
+            const newTicketIds = requests.map(req => req._id);
+            const existingTicketIds = previousTickets.current.map(ticket => ticket._id);
+            const isNewTicket = newTicketIds.some(id => !existingTicketIds.includes(id));
 
+            console.log(isNewTicket);
+            
+            if (isNewTicket) {
+                const audio = new Audio(messageSound);
+                audio.play();
+            }
+        }
+
+        previousTickets.current = requests;
         setTickets(requests);
     }
 

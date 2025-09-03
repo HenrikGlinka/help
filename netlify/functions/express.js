@@ -41,15 +41,12 @@ router.post('/users/register', async (request, response) => {
             return response.status(400).json({ error: 'Brugernavn og adgangskode er påkrævet' });
         }
 
-        
-
         const database = client.db(DB_NAME);
         const inviteCollection = database.collection('invites');
         const userCollection = database.collection('users');
 
         const inviteData = await inviteCollection.findOne({ code: invite });
         if (!inviteData) return response.status(400).json({ error: 'Ugyldig invitationsnøgle' });
-
 
         const existingUser = await userCollection.findOne({ username: username.toLowerCase() });
 
