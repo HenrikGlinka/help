@@ -72,6 +72,7 @@ button {
   transition: transform 100ms ease-in;
   font-size: 0.875rem;
   font-weight: bold;
+  cursor: pointer;
 }
 
 button.approve {
@@ -80,6 +81,10 @@ button.approve {
 
 button.cancel {
   background-color: var(--button-cancel-color);
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
 button:active:not(:disabled) {

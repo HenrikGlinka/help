@@ -2,7 +2,9 @@ import { GoDiscussionClosed } from "react-icons/go";
 import { formatDate } from "../utilities/format-date";
 import { HiOutlineChatBubbleOvalLeftEllipsis } from "react-icons/hi2";
 import { completeRequest, startRequest } from "../helpers/api";
-import { use, useRef } from "react";
+import { useRef } from "react";
+import CompleteSound from "../assets/audio/sounds/fanfare.mp3";
+import { PiSpinner } from "react-icons/pi";
 
 export default function QueueCard({ ticket, onUpdate = null }) {
 
@@ -34,6 +36,8 @@ export default function QueueCard({ ticket, onUpdate = null }) {
 
         if (response) if (onUpdate !== null) {
             completeButton.current.disabled = false;
+            const completeSound = new Audio(CompleteSound);
+            completeSound.play();
             onUpdate();
         }
         else {
@@ -67,7 +71,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                                     <button ref={startButton} onClick={() => startRequestHandler(ticket._id)} className="w-min p-2 text-nowrap">
                                         {!startButton.current?.disabled ?
                                             <><HiOutlineChatBubbleOvalLeftEllipsis className="mr-1" size={20} />Besvar</> :
-                                            <PiSpinner className='animate-spin hidden m-auto' size={20} />
+                                            <PiSpinner className='animate-spin m-auto' size={20} />
                                         }
                                     </button>
                                 </li>
@@ -76,7 +80,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                                 <button ref={completeButton} onClick={() => completeRequestHandler(ticket._id)} className="approve w-min p-2 text-nowrap">
                                     {!completeButton.current?.disabled ?
                                         <><GoDiscussionClosed className="mr-1" size={20} />Løst</> :
-                                        <PiSpinner className='animate-spin hidden m-auto' size={20} />
+                                        <PiSpinner className='animate-spin m-auto' size={20} />
                                     }
                                 </button>
                             </li>
