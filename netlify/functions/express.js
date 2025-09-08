@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authenticationMiddleware from './authentication.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { sendNotification } from "./notifications.js";
 
 dotenv.config();
 
@@ -203,6 +204,9 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
             };
 
             const result = await collection.insertOne(newRequest);
+
+            sendNotification(request.user.id, `Nyt spørgsmål fra ${request.user.username}`, description);
+
             response.status(201).json(result);
         } catch (error) {
             console.error('Error creating request:', error);
@@ -264,7 +268,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
         const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
         if (!existingRequest) return response.status(404).json({ error: 'Request not found.' });
         if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
-            return response.status(403).json({ error: 'Du har ikke rettighedder til at fuldføre denne anmodning.' });
+            return response.status(403).json({ error: 'Du har ikke rettigheder til at fuldføre denne anmodning.' });
         }
 
         const result = await collection.updateOne(
@@ -288,3 +292,23 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
     }
 });
+
+router.post('/notifications/subscribe', authenticationMiddleware, async (request, response) => {
+
+    request.on('data', async data => {
+        const subscription = JSON.parse(data.toString());
+
+        // Save the subscription to the database
+        const database = client.db(DB_NAME);
+        const collection = database.collection('push_subscriptions');
+
+        await collection.insertOne({
+            user_id: request.user.id,
+            subscription,
+        });
+
+        response.status(201).json({ message: 'Subscription saved successfully.' });
+    });
+});
+
+
