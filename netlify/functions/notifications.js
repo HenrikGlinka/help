@@ -13,7 +13,9 @@ const VAPID_PRIVATE_KEY = process.env.NOTIFICATIONS_PRIVATE_KEY;
 
 webPush.setVapidDetails(VAPID_CONTACT_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
-export async function sendNotification(userId, title, message) {
+export async function sendNotification(userId, title, message = '') {
+
+    console.log('Preparing to send notification to user:', userId);
 
     if (!MONGODB_URI) {
         console.error('MONGODB_URI environment variable is not set');
@@ -21,9 +23,9 @@ export async function sendNotification(userId, title, message) {
     }
 
     const database = client.db(DB_NAME);
-    const collection = database.collection('subscriptions');
+    const collection = database.collection('push_subscriptions');
 
-    const subscriptions = await collection.find({ userId }).toArray();
+    const subscriptions = await collection.find({ user_id: userId }).toArray();
 
     if (!subscriptions || subscriptions.length === 0) {
         console.log('No subscriptions found for user:', userId);

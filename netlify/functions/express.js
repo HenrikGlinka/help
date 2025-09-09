@@ -205,7 +205,13 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
 
             const result = await collection.insertOne(newRequest);
 
-            sendNotification(request.user.id, `Nyt spørgsmål fra ${request.user.username}`, description);
+            const admins = await database.collection('users').find({ role: 'admin' }).toArray();
+
+            console.log('Notifying admins about new request:', admins.map(a => a._id.toString()));
+            
+            for (const admin of admins) {
+                await sendNotification(admin._id.toString(), `Nyt spørgsmål fra ${request.user.username.capitalize()}`, title);
+            }
 
             response.status(201).json(result);
         } catch (error) {
@@ -241,6 +247,10 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
         if (result.modifiedCount === 0) {
             return response.status(404).json({ error: 'Request not found or already started.' });
         }
+
+        const userId = (await collection.findOne({ _id: new ObjectId(requestId) })).user_id.toString();
+
+        await sendNotification(userId, `${request.user.username.capitalize()} er på vej for at hjælpe dig!`);
         response.status(200).json({ message: 'Request marked as started.' });
     } catch (error) {
         console.error('Error starting request:', error);
