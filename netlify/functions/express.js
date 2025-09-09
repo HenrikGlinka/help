@@ -210,7 +210,9 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
             console.log('Notifying admins about new request:', admins.map(a => a._id.toString()));
             
             for (const admin of admins) {
-                await sendNotification(admin._id.toString(), `Nyt spørgsmål fra ${request.user.username.capitalize()}`, title);
+
+                const username = request.user.username.charAt(0).toUpperCase() + request.user.username.slice(1);
+                await sendNotification(admin._id.toString(), `Nyt spørgsmål fra ${username}`, title);
             }
 
             response.status(201).json(result);
@@ -249,8 +251,9 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
         }
 
         const userId = (await collection.findOne({ _id: new ObjectId(requestId) })).user_id.toString();
+        const adminName = request.user.username.charAt(0).toUpperCase() + request.user.username.slice(1);
 
-        await sendNotification(userId, `${request.user.username.capitalize()} er på vej for at hjælpe dig!`);
+        await sendNotification(userId, `${adminName} er på vej for at hjælpe dig!`);
         response.status(200).json({ message: 'Request marked as started.' });
     } catch (error) {
         console.error('Error starting request:', error);
