@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import webPush from 'web-push';
 
 
@@ -25,7 +25,7 @@ export async function sendNotification(userId, title, message = '') {
     const database = client.db(DB_NAME);
     const collection = database.collection('push_subscriptions');
 
-    const subscriptions = await collection.find({ user_id: userId }).toArray();
+    const subscriptions = await collection.find({ user_id: new ObjectId(userId) }).toArray();
 
     if (!subscriptions || subscriptions.length === 0) {
         console.log('No subscriptions found for user:', userId);

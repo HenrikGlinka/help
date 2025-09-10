@@ -42,7 +42,7 @@ export default function LoginPage() {
     return (
         <>
             <Header title="Henrik.help"></Header>
-            <main className="flex flex-col grow">
+            <main>
 
                 <h2>Log ind</h2>
                 <form onSubmit={submitHandler} className='

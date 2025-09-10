@@ -15,7 +15,7 @@ export default function Settings() {
     return (
         <>
             <Header title="Henrik.help"></Header>
-            <main className="flex flex-col w-full max-w-3xl mx-auto">
+            <main>
 
                 <h2 className="mb-4">Settings</h2>
                 <ul className="

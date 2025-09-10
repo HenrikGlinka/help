@@ -60,7 +60,7 @@ export default function RegisterPage() {
     return (
         <>
             <Header title="Henrik.help"></Header>
-            <main className="flex flex-col grow">
+            <main>
 
                 <h2>Registrering</h2>
                 <form onSubmit={submitHandler} className='

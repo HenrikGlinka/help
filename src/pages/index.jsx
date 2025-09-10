@@ -81,7 +81,7 @@ export default function IndexPage() {
     return (
         <>
             <Header title="Henrik.help"></Header>
-            <main className="flex flex-col justify-between grow overflow-hidden w-full max-w-3xl mx-auto">
+            <main className="justify-between">
                 <h2>Venteliste</h2>
                 <div className="mb-4 overflow-y-auto border-y-1">
                     {

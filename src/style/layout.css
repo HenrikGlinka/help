@@ -29,7 +29,14 @@ header {
 }
 
 main {
-  padding: 2rem
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  flex-grow: 1;
 }
 
 summary {
