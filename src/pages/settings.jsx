@@ -34,7 +34,7 @@ export default function Settings() {
                             />
                         </label>
                     </li>
-                    <li><label><span>Dark Mode</span><ToggleButton /></label></li>
+                    <li><label><span>Dark Mode</span><ToggleButton disabled={true} /></label></li>
                 </ul>
                 <Link className="button-like mt-10" to="/"><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
             </main>
