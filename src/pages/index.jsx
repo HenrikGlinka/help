@@ -97,10 +97,10 @@ export default function IndexPage() {
                             </>
                     }
                 </div>
-                <menu className="grid grid-cols-[1fr_2fr_1fr] gap-2 mt-auto">
+                <menu className="grid grid-cols-[1fr_2fr_auto] gap-2 mt-auto">
                     <li><button onClick={logout} className="cancel w-full"><SlLogout className="mr-1" size={20} />Log ud</button></li>
                     <li><button onClick={() => askNewQuestion()} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
-                    <li><Link className="button-like" to="/settings"><IoSettingsOutline  className="mr-1" size={20} />Indstillinger</Link></li>
+                    <li><Link className="button-like" to="/settings"><IoSettingsOutline size={20} /></Link></li>
                 </menu>
 
                 {alertBox}

@@ -310,7 +310,8 @@ router.post('/notifications/:uuid', authenticationMiddleware, async (request, re
 
     request.on('data', async data => {
 
-        const uuid = new ObjectId(request.params.uuid);
+        const uuid = request.params.uuid;
+        const userId = new ObjectId(request.user.id);
 
         if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
 
@@ -320,11 +321,7 @@ router.post('/notifications/:uuid', authenticationMiddleware, async (request, re
         const database = client.db(DB_NAME);
         const collection = database.collection('push_subscriptions');
 
-        await collection.insertOne({
-            uuid: uuid,
-            user_id: new ObjectId(request.user.id),
-            subscription,
-        });
+        await collection.insertOne({ uuid, user_id: userId, subscription });
 
         response.status(201).json({ message: 'Subscription saved successfully.' });
     });

@@ -5,22 +5,12 @@ import { MdArrowBack } from "react-icons/md";
 import { Link } from "react-router";
 import { isSubscribedToNotifications, subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
 
+const notificationsPromise = isSubscribedToNotifications();
+
 export default function Settings() {
 
     const [uuid, setUuid] = useState(localStorage.getItem("uuid") ?? null);
-    const [notificationsOn, setNotificationsOn] = useState(null);
-
-
-    useEffect(() => {
-        async function updateNotificationsToggle() {
-            setNotificationsOn(uuid && await isSubscribedToNotifications());
-
-            console.log(uuid && await isSubscribedToNotifications());
-            
-        }
-
-        updateNotificationsToggle();
-    }, [uuid]);
+    const notificationsOn = use(notificationsPromise);
 
     return (
         <>
@@ -40,8 +30,7 @@ export default function Settings() {
                             <ToggleButton
                                 on={subscribeToNotifications}
                                 off={unsubscribeFromNotifications}
-                                checked={notificationsOn === true}
-                                disabled={notificationsOn === null}
+                                checked={notificationsOn}
                             />
                         </label>
                     </li>
