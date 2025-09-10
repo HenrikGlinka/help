@@ -17,6 +17,7 @@ h4,
 h5,
 h6 {
   font-weight: bold;
+  text-align: center;
 }
 
 p {
@@ -61,7 +62,7 @@ form {
     margin-block: 1rem;
 }
 
-button {
+button, .button-like {
   background-color: var(--button-color);
   border-radius: 999rem;
   padding: .5rem;
@@ -97,7 +98,7 @@ form[inert] button {
   background-color: slategray;
 }
 
-input, select {
+input:not([type="checkbox"]), select {
   width: 100%;
   padding: .5rem .5rem .3rem .5rem;
   margin-bottom: .2rem;

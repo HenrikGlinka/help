@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
 import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Alert, AlertTitle, Skeleton } from "@mui/material";
 import { SlLogout } from "react-icons/sl";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
+import { IoSettingsOutline } from "react-icons/io5";
 
 export default function IndexPage() {
 
@@ -22,14 +23,14 @@ export default function IndexPage() {
 
         console.log("Fetched requests");
         console.log(requests);
-        
+
         if (requests.length > 0) {
             const newTicketIds = requests.map(req => req._id);
             const existingTicketIds = previousTickets.current.map(ticket => ticket._id);
             const isNewTicket = newTicketIds.some(id => !existingTicketIds.includes(id));
 
             console.log(isNewTicket);
-            
+
             if (isNewTicket) {
                 const audio = new Audio(messageSound);
                 audio.play();
@@ -80,14 +81,14 @@ export default function IndexPage() {
     return (
         <>
             <Header title="Henrik.help"></Header>
-            <main className="flex flex-col justify-between grow overflow-hidden">
+            <main className="flex flex-col justify-between grow overflow-hidden w-full max-w-3xl mx-auto">
                 <h2>Venteliste</h2>
                 <div className="mb-4 overflow-y-auto border-y-1">
                     {
                         tickets ?
                             (tickets.length > 0 ?
                                 tickets.map((ticketData, index) => <QueueCard key={index} ticket={ticketData} onUpdate={updateTickets} />)
-                                : <p className="text-center text-gray-500 p-3 italic">Ingen åbne spørgsmål</p>)
+                                : <p className="text-center text-gray-500 p-3 italic">Ventelisten er tom.</p>)
                             :
                             <>
                                 <Skeleton variant="rectangular" className="mb-1 rounded-2xl" height='5.75rem' />
@@ -96,9 +97,10 @@ export default function IndexPage() {
                             </>
                     }
                 </div>
-                <menu className="grid grid-cols-[1fr_2fr] gap-2 mt-auto ">
+                <menu className="grid grid-cols-[1fr_2fr_1fr] gap-2 mt-auto">
                     <li><button onClick={logout} className="cancel w-full"><SlLogout className="mr-1" size={20} />Log ud</button></li>
                     <li><button onClick={() => askNewQuestion()} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
+                    <li><Link className="button-like" to="/settings"><IoSettingsOutline  className="mr-1" size={20} />Indstillinger</Link></li>
                 </menu>
 
                 {alertBox}

@@ -306,9 +306,14 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
     }
 });
 
-router.post('/notifications/subscribe', authenticationMiddleware, async (request, response) => {
+router.post('/notifications/:uuid', authenticationMiddleware, async (request, response) => {
 
     request.on('data', async data => {
+
+        const uuid = new ObjectId(request.params.uuid);
+
+        if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
+
         const subscription = JSON.parse(data.toString());
 
         // Save the subscription to the database
@@ -316,12 +321,51 @@ router.post('/notifications/subscribe', authenticationMiddleware, async (request
         const collection = database.collection('push_subscriptions');
 
         await collection.insertOne({
-            user_id: request.user.id,
+            uuid: uuid,
+            user_id: new ObjectId(request.user.id),
             subscription,
         });
 
         response.status(201).json({ message: 'Subscription saved successfully.' });
     });
+});
+
+router.delete('/notifications/:uuid', authenticationMiddleware, async (request, response) => {
+    const uuid = request.params.uuid;
+    if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('push_subscriptions');
+        const result = await collection.deleteOne({ uuid });
+        if (result.deletedCount === 0) {
+            return response.status(404).json({ error: 'Subscription not found.' });
+        }   
+        response.status(200).json({ message: 'Subscription deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting subscription:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get('/notifications/:uuid', async (request, response) => {
+    const uuid = request.params.uuid;
+    if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
+    try {
+        
+        const database = client.db(DB_NAME);
+        const collection = database.collection('push_subscriptions');
+        const subscription = await collection.findOne({ 'subscription.uuid': uuid });
+
+        if (!subscription) {
+            return response.status(404).json({ error: 'Subscription not found.' });
+        }
+
+        return response.json(subscription.subscription);
+        
+    } catch (error) {
+        console.error('Error fetching subscription by UUID:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 
