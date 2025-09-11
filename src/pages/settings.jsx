@@ -17,16 +17,16 @@ export default function Settings() {
             <Header title="Henrik.help"></Header>
             <main>
 
-                <h2 className="mb-4">Settings</h2>
+                <h2 className="mb-4">Indstillinger</h2>
                 <ul className="
                     mt-2 w-full flex flex-col gap-3
-                    [&>li]:w-full [&>li]:px-5 [&>li]:py-3 [&>li]:bg-white [&>li]:rounded-3xl 
+                    [&>li]:w-full [&>li]:px-5 [&>li]:py-3 [&>li]:bg-white dark:[&>li]:bg-black [&>li]:rounded-3xl 
                     [&>li>label]:flex [&>li>label]:justify-between [&>li>label]:items-center
                     [&>li>label]:has-[input:disabled]:text-gray-300 [&>li>label]:has-[input:disabled]:line-through
                 ">
                     <li>
                         <label>
-                            <span>Tilmeld notifikationer</span>
+                            <span>Modtag notifikationer</span>
                             <ToggleButton
                                 on={subscribeToNotifications}
                                 off={unsubscribeFromNotifications}
@@ -34,9 +34,42 @@ export default function Settings() {
                             />
                         </label>
                     </li>
-                    <li><label><span>Dark Mode</span><ToggleButton disabled={true} /></label></li>
+                    <li>
+                        <label><span>Mørkt tema</span>
+                            <ToggleButton
+                                disable
+                                on={() => {
+                                    document.body.classList.add('dark');
+                                    localStorage.setItem('theme', 'dark');
+                                }}
+
+                                off={() => {
+                                    document.body.classList.remove('dark');
+                                    localStorage.removeItem('theme');
+                                }}
+
+                                checked={localStorage.getItem('theme') === 'dark'}
+                            />
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <span>Lyd effekter</span>
+                            <ToggleButton
+                                on={() => {
+                                    localStorage.setItem('sound', 'on');
+                                }}
+
+                                off={() => {
+                                    localStorage.removeItem('sound');
+                                }}
+
+                                checked={localStorage.getItem('sound') !== null}
+                            />
+                        </label>
+                    </li>
                 </ul>
-                <Link className="button-like mt-10" to="/"><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
+                <Link className="button-like mt-auto" to="/"><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
             </main>
         </>
     )

@@ -21,17 +21,12 @@ export default function IndexPage() {
 
         if (requests.error === 'Invalid token') navigate('/login');
 
-        console.log("Fetched requests");
-        console.log(requests);
-
         if (requests.length > 0) {
             const newTicketIds = requests.map(req => req._id);
             const existingTicketIds = previousTickets.current.map(ticket => ticket._id);
             const isNewTicket = newTicketIds.some(id => !existingTicketIds.includes(id));
 
-            console.log(isNewTicket);
-
-            if (isNewTicket) {
+            if (isNewTicket && localStorage.getItem('sound') !== null) {
                 const audio = new Audio(messageSound);
                 audio.play();
             }
@@ -83,7 +78,7 @@ export default function IndexPage() {
             <Header title="Henrik.help"></Header>
             <main className="justify-between">
                 <h2>Venteliste</h2>
-                <div className="mb-4 overflow-y-auto border-y-1">
+                <div className="mb-4 overflow-y-auto border-y-1 py-2">
                     {
                         tickets ?
                             (tickets.length > 0 ?

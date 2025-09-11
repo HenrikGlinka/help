@@ -36,8 +36,11 @@ export default function QueueCard({ ticket, onUpdate = null }) {
 
         if (response) if (onUpdate !== null) {
             completeButton.current.disabled = false;
-            const completeSound = new Audio(CompleteSound);
-            completeSound.play();
+            if (localStorage.getItem('sound') !== null) {
+                const completeSound = new Audio(CompleteSound);
+                completeSound.play();
+            }
+
             onUpdate();
         }
         else {
@@ -48,7 +51,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
 
 
     return (
-        <div className="bg-white border rounded-2xl p-4 grid-cols-[1fr_auto_auto] grid mb-1">
+        <div className="bg-white border rounded-2xl p-4 grid-cols-[1fr_auto_auto] grid mb-1 dark:bg-black">
             <details className="col-span-3 mb-2" name="ticket-details">
                 <summary className="flex justify-between gap-1 items-center">
                     <p className="w-full">{ticket.title}</p>

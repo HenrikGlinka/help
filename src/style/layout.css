@@ -10,6 +10,12 @@ body {
   border-color: var(--border-color)
 }
 
+body.dark {
+  background-color: var(--background-color-dark);
+  color: var(--text-color-dark);
+  border-color: var(--border-color-dark);
+}
+
 h1,
 h2,
 h3,
@@ -82,15 +88,26 @@ button, .button-like {
   font-weight: bold;
   cursor: pointer;
   white-space: nowrap;
-  
+}
+
+.dark button, .dark .button-like {
+  background-color: var(--button-color-dark);
 }
 
 button.approve {
   background-color: var(--button-approve-color);
 }
 
+.dark button.approve {
+  background-color: var(--button-approve-color-dark);
+}
+
 button.cancel {
   background-color: var(--button-cancel-color);
+}
+
+.dark button.cancel {
+  background-color: var(--button-cancel-color-dark);
 }
 
 button:hover:not(:disabled) {

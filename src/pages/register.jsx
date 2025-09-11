@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
                 <h2>Registrering</h2>
                 <form onSubmit={submitHandler} className='
-                    flex flex-col gap-4 border rounded-2xl p-4 bg-white
+                    flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black
                     [&_label]:flex [&_label]:flex-col 
                     [&_span]:text-sm [&_span]:font-bold
                     [&[inert]_button_svg]:block [&[inert]_button_span]:hidden
