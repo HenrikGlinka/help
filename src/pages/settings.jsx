@@ -41,11 +41,13 @@ export default function Settings() {
                                 on={() => {
                                     document.body.classList.add('dark');
                                     localStorage.setItem('theme', 'dark');
+                                    document.querySelector('meta[name="theme-color"]').setAttribute("content", "#000000");
                                 }}
 
                                 off={() => {
                                     document.body.classList.remove('dark');
                                     localStorage.removeItem('theme');
+                                    document.querySelector('meta[name="theme-color"]').setAttribute("content", "#ffffff");
                                 }}
 
                                 checked={localStorage.getItem('theme') === 'dark'}
