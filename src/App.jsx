@@ -7,9 +7,14 @@ function App() {
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
-    
-    if (theme === "dark") document.body.classList.add("dark");
-    else document.body.classList.remove("dark");
+
+    if (theme === "dark") {
+      document.body.classList.add("dark");
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#000000");
+    } else {
+      document.body.classList.remove("dark");
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#ffffff");
+    }
   }, []);
 
   return (
