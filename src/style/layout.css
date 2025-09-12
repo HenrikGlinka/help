@@ -169,6 +169,10 @@ hr {
   margin-block: 0.5rem;
 }
 
+.dark hr {
+  border-color: var(--border-color-dark);
+}
+
 #root {
   height: 100vh;
   display: flex;

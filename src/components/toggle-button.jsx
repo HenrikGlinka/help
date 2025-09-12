@@ -14,9 +14,10 @@ export default function ToggleButton({ checked = null, on = null, off = null, di
                 before:absolute before:w-full before:h-full before:block before:rounded-2xl before:bg-gray-200 
                 dark:before:bg-gray-800
                 before:inset-shadow-[0_2px_4px_rgb(0_0_0_/_0.05)]
+                dark:before:inset-shadow-[0_2px_8px_rgb(0_0_0_/_0.6)]
                 
                 after:bg-white after:block after:size-6 after:rounded-full after:transition-all after:ease-in
-                dark:after:bg-gray-900
+                dark:after:bg-black
                 after:ml-1 after:absolute after:shadow-[0_3px_1px_rgb(0_0_0_/_0.05)]
                 
                 checked:after:ml-7 checked:before:bg-emerald-200 disabled:before:bg-gray-100

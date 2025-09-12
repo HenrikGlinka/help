@@ -4,7 +4,8 @@
     --color-light-gray: #f1f3f4;
     --color-gray: #ebedee;
     --color-dark-gray: #708090;
-    --color-darker-gray: #202124;
+    --color-darker-gray: #303135;
+    --color-darkest-gray: #202124;
     --color-red: #c44545;
     --color-dark-red: #681616;
     --color-blue: #4578c4;
@@ -14,9 +15,9 @@
     --background-color: var(--color-light-gray);
     --border-color: var(--color-gray);
 
-    --background-color-dark: var(--color-darker-gray);
+    --background-color-dark: var(--color-darkest-gray);
     --text-color-dark: var(--color-light-gray);
-    --border-color-dark: var(--color-dark-gray);
+    --border-color-dark: var(--color-darker-gray);
 
     --button-color: var(--color-blue);
     --button-approve-color: var(--color-light-green);

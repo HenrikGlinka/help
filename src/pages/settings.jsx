@@ -56,7 +56,7 @@ export default function Settings() {
                     </li>
                     <li>
                         <label>
-                            <span>Lyd effekter</span>
+                            <span>Lydeffekter</span>
                             <ToggleButton
                                 on={() => {
                                     localStorage.setItem('sound', 'on');
