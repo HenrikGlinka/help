@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express, { request, Router } from "express";
 import serverless from "serverless-http";
 import cors from 'cors';
 import { MongoClient, ObjectId } from 'mongodb';
@@ -62,8 +62,11 @@ router.post('/users/register', async (request, response) => {
             password_hash: passwordHash,
             created_at: new Date(),
             invite_code: invite,
-            role: 'user'
+            role: 'user',
         };
+
+        if (inviteData.group) newUser.group = inviteData.group;
+        if (inviteData.role) newUser.role = inviteData.role;
 
         await userCollection.insertOne(newUser);
 
@@ -94,15 +97,34 @@ router.post('/users/login', async (request, response) => {
             return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
         }
 
-        const token = jwt.sign({ user: { id: userData._id, username: userData.username, role: userData.role } }, process.env.JWT_SECRET, { expiresIn: '12h' });
+        const token = jwt.sign({ user: { 
+            id: userData._id, 
+            username: userData.username,
+            role: userData.role,
+            group: userData.group,
+        } }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
         response.json({ token });
     });
 });
 
+router.get('/users/me', async (request, response) => {
+    const token = request.headers.authorization?.split(' ')[1];
+
+    if (!token) return request.status(400).json({ error: 'Token is required.' });
+
+    try {
+        const { user } = jwt.verify(token, process.env.JWT_SECRET);
+        response.json({ user });
+    } catch (error) {
+        const message = error.name === 'TokenExpiredError' ? `Token expired at ${error.expiredAt}` : 'Invalid token';
+        response.status(401).json({ error: message });
+    }
+});
+
 router.get('/requests/all', authenticationMiddleware, async (request, response) => {
     try {
-        
+
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const requests = await collection.find().toArray();
@@ -123,7 +145,7 @@ router.get('/requests/all', authenticationMiddleware, async (request, response) 
 
 router.get('/requests/open', authenticationMiddleware, async (request, response) => {
     try {
-        
+
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
         const userId = new ObjectId(request.user.id);
@@ -152,13 +174,25 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
 });
 
 
-router.get('/requests/all/open', authenticationMiddleware, async (request, response) => {
+router.get('/requests/:group/open', authenticationMiddleware, async (request, response) => {
     try {
-        
+
+        const group = request.params.group;
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
-        const requests = await collection.find({ completion_date: { $exists: false } }).toArray();
 
+        console.log(`Looking for group: "${group}"`);
+
+        const query = { completion_date: { $exists: false } };
+        
+        if (group !== 'all') query.group = group;
+
+        const requests = await collection.find(query).toArray();
+
+        console.log(`Found ${requests.length} requests for group "${group}"`);
+        console.log(query);
+        
+        
 
         requests.forEach(result => {
             result.isOwner = result.user_id.toString() === request.user.id;
@@ -172,6 +206,23 @@ router.get('/requests/all/open', authenticationMiddleware, async (request, respo
     } finally {
 
     }
+});
+
+router.get('/groups/all', authenticationMiddleware, async (request, response) => {
+    try {
+        if (request.user.role !== 'admin') {
+            return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+        }
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const groups = await collection.distinct('group', { group: { $exists: true, $ne: null } });
+        response.json(groups);
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
+
 });
 
 router.post('/requests', authenticationMiddleware, async (request, response) => {
@@ -191,7 +242,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
         }
 
         try {
-            
+
             const database = client.db(DB_NAME);
             const collection = database.collection('requests');
             const userId = new ObjectId(request.user.id);
@@ -203,12 +254,14 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
                 owner: request.user.username,
             };
 
+            if (request.user.group) newRequest.group = request.user.group.toLowerCase();
+
             const result = await collection.insertOne(newRequest);
 
             const admins = await database.collection('users').find({ role: 'admin' }).toArray();
 
             console.log('Notifying admins about new request:', admins.map(a => a._id.toString()));
-            
+
             for (const admin of admins) {
 
                 const username = request.user.username.charAt(0).toUpperCase() + request.user.username.slice(1);
@@ -234,7 +287,7 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
     if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
 
     try {
-        
+
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
 
@@ -274,7 +327,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
 
     try {
-        
+
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
 
@@ -336,7 +389,7 @@ router.delete('/notifications/:uuid', authenticationMiddleware, async (request, 
         const result = await collection.deleteOne({ uuid });
         if (result.deletedCount === 0) {
             return response.status(404).json({ error: 'Subscription not found.' });
-        }   
+        }
         response.status(200).json({ message: 'Subscription deleted successfully.' });
     } catch (error) {
         console.error('Error deleting subscription:', error);
@@ -348,7 +401,7 @@ router.get('/notifications/:uuid', async (request, response) => {
     const uuid = request.params.uuid;
     if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
     try {
-        
+
         const database = client.db(DB_NAME);
         const collection = database.collection('push_subscriptions');
         const subscription = await collection.findOne({ 'subscription.uuid': uuid });
@@ -358,7 +411,7 @@ router.get('/notifications/:uuid', async (request, response) => {
         }
 
         return response.json(subscription.subscription);
-        
+
     } catch (error) {
         console.error('Error fetching subscription by UUID:', error);
         response.status(500).json({ error: 'Internal Server Error' });

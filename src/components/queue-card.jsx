@@ -48,8 +48,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
             completeButton.current.disabled = false;
         }
     }
-
-
+    
     return (
         <div className="bg-white border rounded-2xl p-4 grid-cols-[1fr_auto_auto] grid mb-1 dark:bg-black">
             <details className="col-span-3 mb-2" name="ticket-details">
@@ -62,7 +61,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                 <p className="text-sm text-gray-600 my-1">{ticket.description}</p>
             </details>
 
-            <p className="[&:first-letter]:uppercase">{ticket.owner}</p>
+            <p className="[&:first-letter]:uppercase">{ticket.owner} <span className="text-xs font-bold text-gray-500">{ticket.group.toUpperCase()}</span></p>
             <p className="col-span-2 text-sm self-center">{formatDate(ticket.creation_date, 'kl. HH:mm')}</p>
             {(ticket.isOwner || ticket.isAdmin) &&
                 <>

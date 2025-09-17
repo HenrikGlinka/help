@@ -22,10 +22,7 @@ const authenticationMiddleware = (request, response, next) => {
 
     next();
   } catch (error) {
-    // Use template literals for error messages
-    const message = error.name === 'TokenExpiredError'
-      ? `Token expired at ${error.expiredAt}`
-      : 'Invalid token';
+    const message = error.name === 'TokenExpiredError' ? `Token expired at ${error.expiredAt}` : 'Invalid token';
 
     response.status(401).json({ error: message });
   }

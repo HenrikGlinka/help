@@ -124,7 +124,7 @@ form[inert] button {
   background-color: slategray;
 }
 
-input:not([type="checkbox"]), select {
+input:not([type="checkbox"]), select, option {
   width: 100%;
   padding: .5rem .5rem .3rem .5rem;
   margin-bottom: .2rem;
@@ -132,6 +132,15 @@ input:not([type="checkbox"]), select {
   outline: none;
   font-family: inherit;
 
+}
+
+.dark input:not([type="checkbox"]), .dark select, .dark option {
+  color: var(--text-color-dark);
+  background-color: black;
+}
+
+input:disabled, select:disabled {
+  appearance: none;
 }
 
 input::placeholder, textarea::placeholder {

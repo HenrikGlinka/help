@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
-import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
+import { getOpenRequests, getOpenRequestsByUser, getUserInfo } from "../helpers/api";
 import { Link, useNavigate } from "react-router";
 import { Alert, AlertTitle, Skeleton } from "@mui/material";
 import { SlLogout } from "react-icons/sl";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
 import { IoSettingsOutline } from "react-icons/io5";
+
+const userInfoPromise = getUserInfo();
 
 export default function IndexPage() {
 
@@ -16,8 +18,11 @@ export default function IndexPage() {
     const navigate = useNavigate();
     const [alertBox, setAlertBox] = useState(null);
 
+    const { user } = use(userInfoPromise);
+
     const updateTickets = async () => {
-        const requests = await getOpenRequests();
+        const group = user.role === 'admin' ? (localStorage.getItem('group') || 'all') : user.group;
+        const requests = await getOpenRequests(group);
 
         if (requests.error === 'Invalid token') navigate('/login');
 

@@ -19,16 +19,25 @@ async function fetchData(endpoint, method = 'GET', body = null) {
     try {
         const response = await fetch(url, options);
 
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            return;
+        }
+
        return await response.json();
 
     } catch (error) {
-        throw error;
+        console.error('Error fetching data:', error);
+        return null;
     }
 }
 
 const getAllRequests = async () => await fetchData('api/requests/all');
-const getOpenRequests = async () => await fetchData('api/requests/all/open');
+const getOpenRequests = async (group) => await fetchData(`api/requests/${group.toLowerCase()}/open`);
 const getOpenRequestsByUser = async () => await fetchData('api/requests/open');
+const getAllGroups = async () => await fetchData('api/groups/all');
+const getUserInfo = async () => await fetchData('api/users/me');
 
 const postRequest = async (data) => await fetchData('api/requests', 'POST', data);
 const postRegister = async (data) => await fetchData('api/users/register', 'POST', data);
@@ -41,6 +50,8 @@ export {
     getAllRequests,
     getOpenRequests,
     getOpenRequestsByUser,
+    getAllGroups,
+    getUserInfo,
     postRequest,
     postRegister,
     postLogin,

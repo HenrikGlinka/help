@@ -4,13 +4,21 @@ import ToggleButton from "../components/toggle-button";
 import { MdArrowBack } from "react-icons/md";
 import { Link } from "react-router";
 import { isSubscribedToNotifications, subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
+import { getAllGroups, getUserInfo } from "../helpers/api";
 
 const notificationsPromise = isSubscribedToNotifications();
+const groupsPromise = getAllGroups();
+const userInfoPromise = getUserInfo();
 
 export default function Settings() {
 
-    const [uuid, setUuid] = useState(localStorage.getItem("uuid") ?? null);
     const notificationsOn = use(notificationsPromise);
+    const groups = use(groupsPromise);
+
+    const selectedGroup = localStorage.getItem('group') || 'Alle';
+
+    const { user } = use(userInfoPromise);
+
 
     return (
         <>
@@ -22,7 +30,7 @@ export default function Settings() {
                     mt-2 w-full flex flex-col gap-3
                     [&>li]:w-full [&>li]:px-5 [&>li]:py-3 [&>li]:bg-white dark:[&>li]:bg-black [&>li]:rounded-3xl 
                     [&>li>label]:flex [&>li>label]:justify-between [&>li>label]:items-center
-                    [&>li>label]:has-[input:disabled]:text-gray-300 [&>li>label]:has-[input:disabled]:line-through
+                    [&>li>label]:has-[input:disabled,select:disabled]:text-gray-500
                 ">
                     <li>
                         <label>
@@ -68,6 +76,31 @@ export default function Settings() {
 
                                 checked={localStorage.getItem('sound') !== null}
                             />
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <span>Vis hold
+                            </span>
+                            <select
+                                name="class"
+                                className="max-w-fit min-w-14 text-right"
+                                defaultValue={selectedGroup}
+                                onChange={event => localStorage.setItem('group', event.target.value)}
+                                disabled={user.role !== 'admin'}
+                           >
+                                {user.role === 'admin' ?
+
+                                    <>
+                                        <option value="all">Alle</option>
+                                        {groups.map(group => 
+                                            <option key={group} value={group.toLowerCase()}>{group}</option>
+                                        )}
+                                    </>
+                                    :
+                                    <option>{user.group}</option>
+                                }
+                            </select>
                         </label>
                     </li>
                 </ul>
