@@ -19,12 +19,6 @@ async function fetchData(endpoint, method = 'GET', body = null) {
     try {
         const response = await fetch(url, options);
 
-        if (response.status === 401) {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
-            return;
-        }
-
        return await response.json();
 
     } catch (error) {

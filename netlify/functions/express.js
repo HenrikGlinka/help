@@ -111,7 +111,7 @@ router.post('/users/login', async (request, response) => {
 router.get('/users/me', async (request, response) => {
     const token = request.headers.authorization?.split(' ')[1];
 
-    if (!token) return request.status(400).json({ error: 'Token is required.' });
+    //if (!token) return request?.status(400).json({ error: 'Token is required.' });
 
     try {
         const { user } = jwt.verify(token, process.env.JWT_SECRET);

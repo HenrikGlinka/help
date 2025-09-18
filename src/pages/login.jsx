@@ -11,7 +11,7 @@ export default function LoginPage() {
     const [alertBox, setAlertBox] = useState(null);
     const [params] = useSearchParams();
 
-    const user = params.get('user') || '';
+    const username = params.get('user') || '';
 
     const navigate = useNavigate();
 
@@ -53,7 +53,7 @@ export default function LoginPage() {
                 '>
                     <label>
                         <span>Navn</span>
-                        <input type="text" name="username" placeholder="Skriv dit navn" defaultValue={user} />
+                        <input type="text" name="username" placeholder="Skriv dit navn" defaultValue={username} />
                     </label>
 
                     <label>

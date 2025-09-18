@@ -21,8 +21,11 @@ export default function IndexPage() {
     const { user } = use(userInfoPromise);
 
     const updateTickets = async () => {
-        const group = user.role === 'admin' ? (localStorage.getItem('group') || 'all') : user.group;
+        const group = user?.role === 'admin' ? (localStorage.getItem('group') || 'all') : user.group;
         const requests = await getOpenRequests(group);
+
+        console.log(requests);
+        
 
         if (requests.error === 'Invalid token') navigate('/login');
 
@@ -42,10 +45,7 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        if (localStorage.getItem('token') === null) {
-            navigate('/login');
-            return;
-        }
+        if (localStorage.getItem('token') === null) logout();
 
         let updateInterval = setInterval(updateTickets, 10000);
 
