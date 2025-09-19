@@ -2,7 +2,7 @@ import { use, useEffect, useState } from "react";
 import Header from "../components/header";
 import ToggleButton from "../components/toggle-button";
 import { MdArrowBack } from "react-icons/md";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { isSubscribedToNotifications, subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
 import { getAllGroups, getUserInfo } from "../helpers/api";
 
@@ -18,6 +18,12 @@ export default function Settings() {
     const selectedGroup = localStorage.getItem('group') || 'Alle';
 
     const { user } = use(userInfoPromise);
+
+    if (user === undefined) {
+        localStorage.removeItem('token');
+        window.location = '/login';
+    }
+    
 
 
     return (

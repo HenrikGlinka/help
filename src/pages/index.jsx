@@ -21,7 +21,7 @@ export default function IndexPage() {
     const { user } = use(userInfoPromise);
 
     const updateTickets = async () => {
-        const group = user?.role === 'admin' ? (localStorage.getItem('group') || 'all') : user.group;
+        const group = user.role === 'admin' ? (localStorage.getItem('group') || 'all') : user.group;
         const requests = await getOpenRequests(group);
 
         console.log(requests);
@@ -74,7 +74,7 @@ export default function IndexPage() {
 
     function logout() {
         localStorage.removeItem('token');
-        navigate('/login');
+        window.location.href = '/login';
     }
 
 

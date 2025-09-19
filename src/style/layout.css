@@ -94,27 +94,27 @@ button, .button-like {
   background-color: var(--button-color-dark);
 }
 
-button.approve {
+button.approve, .button-like.approve {
   background-color: var(--button-approve-color);
 }
 
-.dark button.approve {
+.dark button.approve, .dark .button-like.approve {
   background-color: var(--button-approve-color-dark);
 }
 
-button.cancel {
+button.cancel, .button-like.cancel {
   background-color: var(--button-cancel-color);
 }
 
-.dark button.cancel {
+.dark button.cancel, .dark .button-like.cancel {
   background-color: var(--button-cancel-color-dark);
 }
 
-button:hover:not(:disabled) {
+button:hover:not(:disabled), .button-like:hover:not(:disabled) {
   filter: brightness(1.05);
 }
 
-button:active:not(:disabled) {
+button:active:not(:disabled), .button-like:active:not(:disabled) {
   filter: brightness(1.1);
   transform: scale(.99);
 }
