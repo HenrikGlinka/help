@@ -23,35 +23,7 @@ export default function AdminPage() {
 
                 <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black text-left">
                     <h3>Eksisterende invitationer</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Invitationsnøgle</th>
-                                <th>Rolle</th>
-                                <th>Hold</th>
-                            </tr>
-                        </thead>
-                        <tbody className="max-h-30 overflow-y-auto grid grid-cols-3 gap-4">
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                            <tr><td>abc123</td><td>Bruger</td><td>WU12</td></tr>
-                        </tbody>
-                    </table>
+                   
                 </section>
 
                 <form action="/api/admin/invite" method="post" className='
