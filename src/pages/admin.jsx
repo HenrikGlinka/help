@@ -1,9 +1,10 @@
 import { use } from "react";
 import Header from "../components/header";
-import { getUserInfo } from "../helpers/api";
+import { getInvites, getUserInfo } from "../helpers/api";
 import { Link } from "react-router";
 
 const userInfoPromise = getUserInfo();
+const invitesPromise = getInvites();
 
 export default function AdminPage() {
 
@@ -14,6 +15,7 @@ export default function AdminPage() {
         window.location = '/login';
     }
 
+    const invites = use(invitesPromise);
 
     return (
         <>
@@ -23,7 +25,29 @@ export default function AdminPage() {
 
                 <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black text-left">
                     <h3>Eksisterende invitationer</h3>
-                   
+                    {invites && invites.length > 0 ? (
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Invitationsnøgle</th>
+                                    <th>Rolle</th>
+                                    <th>Hold</th>
+                                    <th>Slet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {invites.map((invite) => (
+                                    <tr key={invite._id}>
+                                        <td>{invite.code}</td>
+                                        <td>{invite.role}</td>
+                                        <td>{invite.group}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p>Ingen eksisterende invitationer.</p>
+                    )}
                 </section>
 
                 <form action="/api/admin/invite" method="post" className='

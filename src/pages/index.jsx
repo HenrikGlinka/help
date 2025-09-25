@@ -8,8 +8,7 @@ import { SlLogout } from "react-icons/sl";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
 import { IoSettingsOutline } from "react-icons/io5";
-
-const userInfoPromise = getUserInfo();
+import { useLogin } from "../contexts/login-context";
 
 export default function IndexPage() {
 
@@ -18,16 +17,17 @@ export default function IndexPage() {
     const navigate = useNavigate();
     const [alertBox, setAlertBox] = useState(null);
 
-    const { user } = use(userInfoPromise);
+    const user = useLogin();
+
+    let updateInterval = null;
+
+
 
     const updateTickets = async () => {
-        const group = user.role === 'admin' ? (localStorage.getItem('group') || 'all') : user.group;
-        const requests = await getOpenRequests(group);
 
-        console.log(requests);
-        
+        const requests = await getOpenRequests(user.data.group);
 
-        if (requests.error === 'Invalid token') navigate('/login');
+        if (requests.error === 'Invalid token') return user.logout();
 
         if (requests.length > 0) {
             const newTicketIds = requests.map(req => req._id);
@@ -45,15 +45,24 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        if (localStorage.getItem('token') === null) logout();
+        clearInterval(updateInterval);
 
-        let updateInterval = setInterval(updateTickets, 10000);
+        if (user.isLoading) {
+            console.log('User data is still loading...');
+            
+            return;
+        }
 
-        updateTickets();
+        if (localStorage.getItem('token') === null) {
+            user.logout();
+        } else {
+            updateInterval = setInterval(updateTickets, 10000);
+            updateTickets();
+        }
 
         return () => clearInterval(updateInterval);
 
-    }, []);
+    }, [user.isLoading]);
 
 
     async function askNewQuestion() {
@@ -72,17 +81,11 @@ export default function IndexPage() {
         }
     }
 
-    function logout() {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-    }
-
-
     return (
         <>
             <Header title="Henrik.help"></Header>
             <main className="justify-between">
-                <h2>Venteliste</h2>
+                <h2>Venteliste for <span className="italic">{user.data?.group.toLowerCase() === 'all' ? 'samtlige hold' : user.data?.group.toUpperCase()}</span></h2>
                 <div className="mb-4 overflow-y-auto border-y-1 py-2">
                     {
                         tickets ?
@@ -98,8 +101,8 @@ export default function IndexPage() {
                     }
                 </div>
                 <menu className="grid grid-cols-[1fr_2fr_auto] gap-2 mt-auto">
-                    <li><button onClick={logout} className="cancel w-full"><SlLogout className="mr-1" size={20} />Log ud</button></li>
-                    <li><button onClick={() => askNewQuestion()} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
+                    <li><button onClick={user.logout} className="cancel w-full"><SlLogout className="mr-1" size={20} />Log ud</button></li>
+                    <li><button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
                     <li><Link className="button-like" to="/settings"><IoSettingsOutline size={20} /></Link></li>
                 </menu>
 

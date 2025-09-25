@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router'
+import { LoginProvider } from './contexts/login-context.jsx';
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js');
@@ -10,7 +11,9 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <LoginProvider>
+        <App />
+      </LoginProvider>
     </BrowserRouter>
   </StrictMode>,
 )

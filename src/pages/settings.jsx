@@ -4,27 +4,20 @@ import ToggleButton from "../components/toggle-button";
 import { MdArrowBack } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
 import { isSubscribedToNotifications, subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
-import { getAllGroups, getUserInfo } from "../helpers/api";
+import { changeUserGroup, getAllGroups, getUserInfo } from "../helpers/api";
+import { useLogin } from "../contexts/login-context";
 
-const notificationsPromise = isSubscribedToNotifications();
 const groupsPromise = getAllGroups();
-const userInfoPromise = getUserInfo();
 
 export default function Settings() {
 
-    const notificationsOn = use(notificationsPromise);
     const groups = use(groupsPromise);
 
-    const selectedGroup = localStorage.getItem('group') || 'Alle';
 
-    const { user } = use(userInfoPromise);
+    const user = useLogin();
+    const selectedGroup = user.data?.group || 'all';
 
-    if (user === undefined) {
-        localStorage.removeItem('token');
-        window.location = '/login';
-    }
-    
-
+    if (!user.data) user.logout();
 
     return (
         <>
@@ -44,7 +37,7 @@ export default function Settings() {
                             <ToggleButton
                                 on={subscribeToNotifications}
                                 off={unsubscribeFromNotifications}
-                                checked={notificationsOn}
+                                checked={user.recievesNotifications}
                             />
                         </label>
                     </li>
@@ -92,15 +85,20 @@ export default function Settings() {
                                 name="class"
                                 className="max-w-fit min-w-14 text-right"
                                 defaultValue={selectedGroup}
-                                onChange={event => localStorage.setItem('group', event.target.value)}
-                                disabled={user.role !== 'admin'}
-                           >
-                                {user.role === 'admin' ?
+                                onChange={
+                                    async event => {
+                                        await changeUserGroup(user.data.id, event.target.value);
+                                        user.data.group = event.target.value;
+                                    }
+                                }
+                                disabled={user.data.role !== 'admin'}
+                            >
+                                {user.data.role === 'admin' ?
 
                                     <>
                                         <option value="all">Alle</option>
-                                        {groups.map(group => 
-                                            <option key={group} value={group.toLowerCase()}>{group}</option>
+                                        {groups.map(group =>
+                                            group.toLowerCase() !== 'all' && <option key={group} value={group.toLowerCase()}>{group}</option>
                                         )}
                                     </>
                                     :

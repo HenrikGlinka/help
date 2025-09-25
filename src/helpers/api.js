@@ -28,7 +28,7 @@ async function fetchData(endpoint, method = 'GET', body = null) {
 }
 
 const getAllRequests = async () => await fetchData('api/requests/all');
-const getOpenRequests = async (group) => await fetchData(`api/requests/${group.toLowerCase()}/open`);
+const getOpenRequests = async (group) => await fetchData(`api/requests/${group?.toLowerCase()}/open`);
 const getOpenRequestsByUser = async () => await fetchData('api/requests/open');
 const getAllGroups = async () => await fetchData('api/groups/all');
 const getUserInfo = async () => await fetchData('api/users/me');
@@ -40,6 +40,21 @@ const postLogin = async (data) => await fetchData('api/users/login', 'POST', dat
 const startRequest = async (id) => await fetchData(`api/requests/${id}/start`, 'PUT');
 const completeRequest = async (id) => await fetchData(`api/requests/${id}/complete`, 'PUT');
 
+const getInvites = async () => await fetchData('api/invites');
+
+const changeUserGroup = async (userId, group) => {
+
+    await fetchData(`api/users/${userId}/group`, 'PUT', { group: group.toUpperCase() });
+
+    refreshToken();
+};
+
+const refreshToken = async () => {
+    const { token } = await fetchData('api/users/me/refresh', 'GET');
+    if (token) localStorage.setItem('token', token);
+    else localStorage.removeItem('token');
+};
+
 export {
     getAllRequests,
     getOpenRequests,
@@ -50,5 +65,8 @@ export {
     postRegister,
     postLogin,
     startRequest,
-    completeRequest
+    completeRequest,
+    getInvites,
+    changeUserGroup,
+    refreshToken,
 };

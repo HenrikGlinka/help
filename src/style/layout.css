@@ -7,7 +7,7 @@
 body {
   font-family: var(--font), "Comic Sans MS";
   background-color: var(--background-color);
-  border-color: var(--border-color)
+  border-color: var(--border-color);
 }
 
 body.dark {
@@ -32,13 +32,15 @@ p {
 
 header {
   border-bottom-width: 1px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 main {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   width: 100%;
   max-width: 48rem;
   margin-inline: auto;

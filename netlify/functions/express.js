@@ -97,12 +97,14 @@ router.post('/users/login', async (request, response) => {
             return response.status(401).json({ error: 'Ugyldigt brugernavn eller adgangskode.' });
         }
 
-        const token = jwt.sign({ user: { 
-            id: userData._id, 
-            username: userData.username,
-            role: userData.role,
-            group: userData.group,
-        } }, process.env.JWT_SECRET, { expiresIn: '12h' });
+        const token = jwt.sign({
+            user: {
+                id: userData._id,
+                username: userData.username,
+                role: userData.role,
+                group: userData.group,
+            }
+        }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
         response.json({ token });
     });
@@ -111,7 +113,7 @@ router.post('/users/login', async (request, response) => {
 router.get('/users/me', async (request, response) => {
 
     try {
-        
+
         const token = request.headers.authorization?.split(' ')[1];
         const { user } = jwt.verify(token, process.env.JWT_SECRET);
         response.json({ user });
@@ -119,6 +121,60 @@ router.get('/users/me', async (request, response) => {
         const message = error.name === 'TokenExpiredError' ? `Token expired at ${error.expiredAt}` : 'Invalid token';
         response.status(401).json({ error: message });
     }
+});
+
+router.get('/users/me/refresh', authenticationMiddleware, async (request, response) => {
+try {
+
+        const token = request.headers.authorization?.split(' ')[1];
+        const { user } = jwt.verify(token, process.env.JWT_SECRET);
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+
+        const userData = await collection.findOne({ username: user.username.toLowerCase() });
+        
+        if (!userData) {
+            return response.status(401).json({ error: 'Invalid user.' });
+        }
+
+        const newToken = jwt.sign({
+            user: {
+                id: userData._id,
+                username: userData.username,
+                role: userData.role,
+                group: userData.group,
+            }
+        }, process.env.JWT_SECRET, { expiresIn: '12h' });
+
+        response.json({ token: newToken });
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.put('/users/:id/group', authenticationMiddleware, async (request, response) => {
+    const userId = request.params.id;
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    request.on('data', async data => {
+        const { group } = JSON.parse(data.toString());
+        if (!group) return response.status(400).json({ error: 'Group is required.' });
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+
+        const result = await collection.updateOne({ _id: new ObjectId(userId) }, { $set: { group } });
+
+        if (result.modifiedCount === 0) {
+            return response.status(404).json({ error: 'User not found.' });
+        }
+
+        response.json({ message: 'User group updated successfully.' });
+    });
 });
 
 router.get('/requests/all', authenticationMiddleware, async (request, response) => {
@@ -183,15 +239,15 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
         console.log(`Looking for group: "${group}"`);
 
         const query = { completion_date: { $exists: false } };
-        
+
         if (group !== 'all') query.group = group;
 
         const requests = await collection.find(query).toArray();
 
         console.log(`Found ${requests.length} requests for group "${group}"`);
         console.log(query);
-        
-        
+
+
 
         requests.forEach(result => {
             result.isOwner = result.user_id.toString() === request.user.id;
@@ -263,8 +319,10 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
 
             for (const admin of admins) {
 
-                const username = request.user.username.charAt(0).toUpperCase() + request.user.username.slice(1);
-                await sendNotification(admin._id.toString(), `Nyt spørgsmål fra ${username}`, title);
+                if (admin.group === 'all' || request.user.group === admin.group) {
+                    const username = request.user.username.charAt(0).toUpperCase() + request.user.username.slice(1);
+                    await sendNotification(admin._id.toString(), `Nyt spørgsmål fra ${username}`, title);
+                }
             }
 
             response.status(201).json(result);
@@ -417,4 +475,20 @@ router.get('/notifications/:uuid', async (request, response) => {
     }
 });
 
+router.get('/invites', authenticationMiddleware, async (request, response) => {
+
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('invites');
+        const invites = await collection.find().toArray();
+        response.status(200).json(invites);
+    } catch (error) {
+        console.error('Error fetching invites:', error);
+        response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 

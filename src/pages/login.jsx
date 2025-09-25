@@ -1,15 +1,18 @@
-import { useRef, useState } from 'react';
+import { use, useRef, useState } from 'react';
 import Header from '../components/header';
 import { PiSpinner } from 'react-icons/pi';
 import { Alert, AlertTitle } from '@mui/material';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { postLogin } from '../helpers/api';
+import { useLogin } from '../contexts/login-context';
 
 export default function LoginPage() {
 
     const submitButton = useRef(null);
     const [alertBox, setAlertBox] = useState(null);
     const [params] = useSearchParams();
+
+    const user = useLogin();
 
     const username = params.get('user') || '';
 
@@ -31,7 +34,8 @@ export default function LoginPage() {
 
         if (response?.token !== undefined) {
             localStorage.setItem('token', response.token);
-            setTimeout(() => navigate('/'), 1000);
+            await user.update();
+            setTimeout(() => navigate('/'), 500);
         } else {
             form.inert = false;
             setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Kunne ikke logge ind</AlertTitle>{response?.error ?? 'Der opstod en fejl under login'}</Alert>);
