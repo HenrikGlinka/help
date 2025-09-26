@@ -25,7 +25,13 @@ export default function IndexPage() {
 
     const updateTickets = async () => {
 
+        if (!user.isLoading && !user.data) {
+            user.logout();
+            return;
+        }
+        
         const requests = await getOpenRequests(user.data.group);
+        
 
         if (requests.error === 'Invalid token') return user.logout();
 
@@ -100,10 +106,8 @@ export default function IndexPage() {
                             </>
                     }
                 </div>
-                <menu className="grid grid-cols-[1fr_2fr_auto] gap-2 mt-auto">
-                    <li><button onClick={user.logout} className="cancel w-full"><SlLogout className="mr-1" size={20} />Log ud</button></li>
+                <menu className="mt-auto">
                     <li><button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
-                    <li><Link className="button-like" to="/settings"><IoSettingsOutline size={20} /></Link></li>
                 </menu>
 
                 {alertBox}

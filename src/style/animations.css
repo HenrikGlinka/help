@@ -1,5 +1,10 @@
     :root {
         --animate-popup-bottom: 5s ease-in-out popup-bottom forwards;
+        --animate-slide-in-left: .3s ease-out slide-in-left forwards;
+        --animate-slide-out-left: .3s ease-in slide-out-left forwards;
+
+        --animate-fade-in: .3s ease-out fade-in forwards;
+        --animate-fade-out: .3s ease-in fade-out forwards;
     }
 
     @keyframes popup-bottom {
@@ -8,13 +13,58 @@
             opacity: 0;
         }
 
-        10%, 90% {
+        10%,
+        90% {
             transform: translateY(0);
             opacity: 1;
         }
 
         100% {
             transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes slide-in-left {
+        0% {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slide-out-left {
+        0% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fade-out {
+        0% {
+            opacity: 1;
+        }
+
+        100% {
             opacity: 0;
         }
     }

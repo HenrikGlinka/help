@@ -12,11 +12,8 @@ export function LoginProvider({ children }) {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-
-        if (localStorage.getItem('token') !== null) update();
-
-    }, []);
+    useEffect(() => { if (localStorage.getItem('token') !== null) update() }, []);
+    useEffect(() => { if (!isLoading && !data) logout() }, [isLoading, data]);
 
     const update = async () => {
 

@@ -1,10 +1,10 @@
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import ToggleButton from "../components/toggle-button";
 import { MdArrowBack } from "react-icons/md";
-import { Link, useNavigate } from "react-router";
-import { isSubscribedToNotifications, subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
-import { changeUserGroup, getAllGroups, getUserInfo } from "../helpers/api";
+import { Link } from "react-router";
+import { subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
+import { changeUserGroup, getAllGroups } from "../helpers/api";
 import { useLogin } from "../contexts/login-context";
 
 const groupsPromise = getAllGroups();
@@ -12,12 +12,18 @@ const groupsPromise = getAllGroups();
 export default function Settings() {
 
     const groups = use(groupsPromise);
-
+    const groupRef = useRef();
 
     const user = useLogin();
-    const selectedGroup = user.data?.group || 'all';
 
-    if (!user.data) user.logout();
+    if (!user.isLoading && !user.data) user.logout();
+
+    const [selectedGroup, setSelectedGroup] = useState(user.data?.group?.toLowerCase() || 'all');
+
+    useEffect(() => {
+        setSelectedGroup(user.data?.group?.toLowerCase());
+
+    }, [user.data?.group]);
 
     return (
         <>
@@ -79,30 +85,31 @@ export default function Settings() {
                     </li>
                     <li>
                         <label>
-                            <span>Vis hold
+                            <span>Hold
                             </span>
                             <select
                                 name="class"
+                                ref={groupRef}
                                 className="max-w-fit min-w-14 text-right"
-                                defaultValue={selectedGroup}
+                                defaultValue={user.data?.group?.toLowerCase() || 'all'}
                                 onChange={
                                     async event => {
                                         await changeUserGroup(user.data.id, event.target.value);
                                         user.data.group = event.target.value;
                                     }
                                 }
-                                disabled={user.data.role !== 'admin'}
+                                disabled={user.data?.role !== 'admin'}
                             >
-                                {user.data.role === 'admin' ?
+                                {user.data?.role === 'admin' ?
 
                                     <>
                                         <option value="all">Alle</option>
-                                        {groups.map(group =>
+                                        {groups?.map(group =>
                                             group.toLowerCase() !== 'all' && <option key={group} value={group.toLowerCase()}>{group}</option>
                                         )}
                                     </>
                                     :
-                                    <option>{user.group}</option>
+                                    <option value={selectedGroup}>{selectedGroup?.toUpperCase()}</option>
                                 }
                             </select>
                         </label>
