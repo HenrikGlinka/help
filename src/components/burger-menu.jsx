@@ -27,7 +27,10 @@ export default function BurgerMenu({ children }) {
                 </button>
             {isOpen &&
                 <>
-                    <nav ref={nav} className={'animate-[var(--animate-slide-in-left)] top-1 left-1 p-2 bg-white dark:bg-black border-1 rounded shadow-lg z-10 fixed'}>
+                    <nav ref={nav} className={`
+                        animate-[var(--animate-slide-in-left)]
+                        top-1 left-1 right-1 p-2 bg-white dark:bg-black border-1 rounded shadow-lg z-10 fixed
+                    `}>
                         <ul className="flex flex-col gap-2 z-50">
                             <li><button
                                 onClick={toggleMenu}
