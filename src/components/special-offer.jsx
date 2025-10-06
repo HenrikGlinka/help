@@ -41,7 +41,7 @@ export default function SpecialOffer() {
                                 <li>Adgang til mange funktioner</li>
                                 <li>Op til 20 spørgsmål pr. måned</li>
                             </ul>
-                            <button onClick={hideOffer}>Vælg</button>
+                            <button className="cancel" onClick={hideOffer}>Vælg</button>
                         </label>
                     </li>
                     <li className="bg-blue-950 p-2 rounded-lg">
@@ -70,7 +70,7 @@ export default function SpecialOffer() {
                                 <li>24/7 VIP support</li>
                                 <li>10% rabat på merchandise</li>
                             </ul>
-                            <button onClick={hideOffer}>Vælg</button>
+                            <button className="animate-[bounce_.5s_infinite] approve" onClick={hideOffer}>Vælg</button>
                         </label>
                     </li>
                 </ul>
