@@ -66,22 +66,22 @@ export default function QueueCard({ ticket, onUpdate = null }) {
             {(ticket.isOwner || ticket.isAdmin) &&
                 <>
                     <hr className="col-span-3" />
-                    <menu className="flex justify-end gap-3 col-span-3">
+                    <menu className="flex justify-end gap-3 col-span-3 flex-wrap">
                         <>
                             {!ticket.response_date && ticket.isAdmin && ticket.completion_date === undefined &&
-                                <li>
-                                    <button ref={startButton} onClick={() => startRequestHandler(ticket._id)} className="w-min p-2 text-nowrap">
+                                <li className="grow max-w-56">
+                                    <button ref={startButton} onClick={() => startRequestHandler(ticket._id)} className="text-nowrap w-full relative !px-9">
                                         {!startButton.current?.disabled ?
-                                            <><HiOutlineChatBubbleOvalLeftEllipsis className="mr-1" size={20} />Besvar</> :
+                                            <><HiOutlineChatBubbleOvalLeftEllipsis className="absolute left-4" size={20} />Besvar</> :
                                             <PiSpinner className='animate-spin m-auto' size={20} />
                                         }
                                     </button>
                                 </li>
                             }
-                            <li>
-                                <button ref={completeButton} onClick={() => completeRequestHandler(ticket._id)} className="approve w-min p-2 text-nowrap">
+                            <li className="grow max-w-56">
+                                <button ref={completeButton} onClick={() => completeRequestHandler(ticket._id)} className="approve text-nowrap w-full relative !px-9">
                                     {!completeButton.current?.disabled ?
-                                        <><GoDiscussionClosed className="mr-1" size={20} />Løst</> :
+                                        <><GoDiscussionClosed className="absolute left-4" size={20} />Løst</> :
                                         <PiSpinner className='animate-spin m-auto' size={20} />
                                     }
                                 </button>

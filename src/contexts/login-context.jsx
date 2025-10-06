@@ -31,9 +31,14 @@ export function LoginProvider({ children }) {
         navigate('/login');
     }
 
+    const tokenIsValid = async () => {
+        const result = await getUserInfo();
+        return result?.user !== undefined;
+    }
+
 
     return (
-        <LoginContext.Provider value={{ data, recievesNotifications, isLoading, update, logout }}>
+        <LoginContext.Provider value={{ data, recievesNotifications, isLoading, update, tokenIsValid, logout }}>
             {children}
         </LoginContext.Provider>
     );

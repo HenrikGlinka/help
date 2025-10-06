@@ -4,11 +4,10 @@ import QueueCard from "../components/queue-card";
 import { getOpenRequests, getOpenRequestsByUser, getUserInfo } from "../helpers/api";
 import { Link, useNavigate } from "react-router";
 import { Alert, AlertTitle, Skeleton } from "@mui/material";
-import { SlLogout } from "react-icons/sl";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
-import { IoSettingsOutline } from "react-icons/io5";
 import { useLogin } from "../contexts/login-context";
+import SpecialOffer from "../components/special-offer";
 
 export default function IndexPage() {
 
@@ -25,15 +24,15 @@ export default function IndexPage() {
 
     const updateTickets = async () => {
 
-        if (!user.isLoading && !user.data) {
+        if (!user.isLoading && !await user.tokenIsValid()) {
             user.logout();
             return;
         }
-        
-        const requests = await getOpenRequests(user.data.group);
-        
 
-        if (requests.error === 'Invalid token') return user.logout();
+        const requests = await getOpenRequests(user.data.group);
+
+
+        if (requests.error) return user.logout();
 
         if (requests.length > 0) {
             const newTicketIds = requests.map(req => req._id);
@@ -53,18 +52,19 @@ export default function IndexPage() {
     useEffect(() => {
         clearInterval(updateInterval);
 
-        if (user.isLoading) {
-            console.log('User data is still loading...');
-            
-            return;
+        if (user.isLoading) return console.log('User data is still loading...');
+
+        const checkAuthAndUpdate = async () => {
+
+            if (localStorage.getItem('token') === null || !await user.tokenIsValid()) {
+                user.logout();
+            } else {
+                updateInterval = setInterval(updateTickets, 10000);
+                updateTickets();
+            }
         }
 
-        if (localStorage.getItem('token') === null) {
-            user.logout();
-        } else {
-            updateInterval = setInterval(updateTickets, 10000);
-            updateTickets();
-        }
+        checkAuthAndUpdate();
 
         return () => clearInterval(updateInterval);
 
@@ -91,6 +91,7 @@ export default function IndexPage() {
         <>
             <Header title="Henrik.help"></Header>
             <main className="justify-between">
+                <SpecialOffer />
                 <h2>Venteliste for <span className="italic">{user.data?.group.toLowerCase() === 'all' ? 'samtlige hold' : user.data?.group.toUpperCase()}</span></h2>
                 <div className="mb-4 overflow-y-auto border-y-1 py-2">
                     {

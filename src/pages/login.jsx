@@ -62,7 +62,7 @@ export default function LoginPage() {
 
                     <label>
                         <span>Adgangskode</span>
-                        <input type="password" name="password" placeholder="Skriv din adgangskode" />
+                        <input type="password" name="password" placeholder="Skriv din adgangskode" autoComplete='off' />
                     </label>
 
                     <button ref={submitButton} className="approve" type="submit">
