@@ -14,7 +14,7 @@ export default function SpecialOffer() {
 
     return (
         <>
-            <div className="bg-orange-950 text-white p-3 rounded-lg shadow-md space-y-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-3xl z-50">
+            <div className="bg-orange-950 text-white p-3 rounded-lg shadow-md space-y-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:max-w-3xl z-50">
                 <h2 className="text-2xl flex items-center justify-center animate-[pulse_1s_infinite]">
                     <IoWarning className="inline-block mr-2" size={40} />
                     Din gratis prøveperiode er ved at udløbe!
@@ -62,7 +62,7 @@ export default function SpecialOffer() {
                         <label>
                             <h3>🚀 Henrik Ultra+</h3>
                             <small>Maksimal værdi for pengene!</small>
-                            <p className="price"><del className="text-xs">2299</del> 999 DKK / måned</p>
+                            <p className="price"><del className="text-xs">2299</del> 999 kr./md.</p>
                             <input type="radio" name="special-offer" className="hidden" />
                             <ul>
                                 <li>Adgang til alle funktioner</li>
