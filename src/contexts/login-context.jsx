@@ -1,5 +1,5 @@
 import { createContext, use, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { getUserInfo } from "../helpers/api";
 import { isSubscribedToNotifications } from "../utilities/push-notifications";
 
@@ -11,8 +11,13 @@ export function LoginProvider({ children }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate();
+    const location = useLocation();
 
-    useEffect(() => { if (localStorage.getItem('token') !== null) update() }, []);
+    useEffect(() => {
+        if (localStorage.getItem('token') !== null) update();
+        else logout();
+    }, []);
+
     useEffect(() => { if (!isLoading && !data) logout() }, [isLoading, data]);
 
     const update = async () => {
@@ -28,7 +33,8 @@ export function LoginProvider({ children }) {
     const logout = () => {
         setData(null);
         localStorage.removeItem('token');
-        navigate('/login');
+        localStorage.removeItem('group');
+        if (location.pathname !== '/login') navigate('/login');
     }
 
     const tokenIsValid = async () => {

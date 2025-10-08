@@ -87,11 +87,12 @@ export default function IndexPage() {
         }
     }
 
+    if (user.isLoading) return null;
+
     return (
         <>
             <Header title="Henrik.help"></Header>
             <main className="justify-between">
-                <SpecialOffer />
                 <h2>Venteliste for <span className="italic">{user.data?.group.toLowerCase() === 'all' ? 'samtlige hold' : user.data?.group.toUpperCase()}</span></h2>
                 <div className="mb-4 overflow-y-auto border-y-1 py-2">
                     {

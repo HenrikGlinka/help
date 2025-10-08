@@ -79,7 +79,7 @@ form {
 
 button, .button-like {
   background-color: var(--button-color);
-  border-radius: 999rem;
+  border-radius: 100vw;
   padding: .5rem;
   color: white;
   display: flex;
