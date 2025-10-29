@@ -2,21 +2,22 @@ import { use, useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
 import { getOpenRequests, getOpenRequestsByUser, getUserInfo } from "../helpers/api";
-import { Link, useNavigate } from "react-router";
-import { Alert, AlertTitle, Skeleton } from "@mui/material";
+import { useNavigate } from "react-router";
+import { Skeleton } from "@mui/material";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
 import { useLogin } from "../contexts/login-context";
 import SpecialOffer from "../components/special-offer";
+import { useAlert } from "../contexts/alert-context";
 
 export default function IndexPage() {
 
     const [tickets, setTickets] = useState(null);
     const previousTickets = useRef([]);
     const navigate = useNavigate();
-    const [alertBox, setAlertBox] = useState(null);
 
     const user = useLogin();
+    const alert = useAlert();
 
     let updateInterval = null;
 
@@ -72,16 +73,11 @@ export default function IndexPage() {
 
 
     async function askNewQuestion() {
-        setAlertBox(null);
+        alert.hide();
         const openQuestions = await getOpenRequestsByUser();
 
         if (openQuestions.length > 0) {
-            setTimeout(() => setAlertBox(
-                <Alert variant="filled" severity="warning">
-                    <AlertTitle>Vent venligst</AlertTitle>
-                    Du har allerede et åbent spørgsmål. Du kan ikke oprette et nyt spørgsmål før det nuværende er besvaret.
-                </Alert>
-            ));
+            alert.warning("Vent venligst", "Du har allerede et åbent spørgsmål. Du kan ikke oprette et nyt spørgsmål før det nuværende er besvaret.");
         } else {
             navigate('/ask');
         }
@@ -111,8 +107,6 @@ export default function IndexPage() {
                 <menu className="mt-auto">
                     <li><button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
                 </menu>
-
-                {alertBox}
             </main>
         </>
     )

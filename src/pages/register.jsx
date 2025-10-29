@@ -4,18 +4,19 @@ import { PiSpinner } from 'react-icons/pi';
 import { Alert, AlertTitle } from '@mui/material';
 import { Link, useNavigate } from 'react-router';
 import { postRegister } from '../helpers/api';
+import { useAlert } from '../contexts/alert-context';
 
 export default function RegisterPage() {
 
     const submitButton = useRef(null);
-    const [alertBox, setAlertBox] = useState(null);
+    const alert = useAlert();
 
     const navigate = useNavigate();
 
     async function submitHandler(event) {
         event.preventDefault();
 
-        setAlertBox(null);
+        alert.hide();
 
         const form = event.target;
         form.inert = true;
@@ -25,19 +26,19 @@ export default function RegisterPage() {
 
         if (data.username === '') {
             form.inert = false;
-            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i brugernavn</AlertTitle>Du skal indtaste et brugernavn</Alert>));
+            alert.warning("Fejl i brugernavn", "Du skal indtaste et brugernavn");
             return;
         }
 
         if (data.password === '' || data.password !== data.repeat) {
             form.inert = false;
-            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i adgangskode</AlertTitle>De indtastede adgangskoder matcher ikke</Alert>));
+            alert.warning("Fejl i adgangskode", "De indtastede adgangskoder matcher ikke");
             return;
         }
 
         if (data.invite === '') {
             form.inert = false;
-            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i invitationsnøgle</AlertTitle>Du skal indtaste en invitationsnøgle</Alert>));
+            alert.warning("Fejl i invitationsnøgle", "Du skal indtaste en invitationsnøgle");
             return;
         }
         
@@ -48,11 +49,11 @@ export default function RegisterPage() {
 
         if (!response?.error) {
             form.reset();
-            setAlertBox(<Alert variant="filled" severity="success"><AlertTitle>Registrering gennemført</AlertTitle>Din bruger er nu oprettet. Du kan nu logge ind.</Alert>);
+            alert.success("Registrering gennemført", "Din bruger er nu oprettet. Du kan nu logge ind.");
             setTimeout(() => navigate(`/login?user=${data.username}`), 3000);
         } else {
             form.inert = false;
-            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Registrering fejlede</AlertTitle>{response.error}</Alert>);
+            alert.error("Registrering fejlede", response.error);
         }
 
     }
@@ -94,8 +95,6 @@ export default function RegisterPage() {
                 </form>
                 <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du allerede en konto?</p>
                 <Link to="/login" className="text-green-500 text-center underline">Log ind</Link>
-
-                {alertBox}
             </main>
 
         </>

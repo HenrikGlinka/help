@@ -41,6 +41,8 @@ const startRequest = async (id) => await fetchData(`api/requests/${id}/start`, '
 const completeRequest = async (id) => await fetchData(`api/requests/${id}/complete`, 'PUT');
 
 const getInvites = async () => await fetchData('api/invites');
+const addInvite = async (data) => await fetchData('api/invites', 'POST', data);
+const deleteInvite = async (inviteId) => await fetchData(`api/invites/${inviteId}`, 'DELETE');
 
 const changeUserGroup = async (userId, group) => {
 
@@ -67,6 +69,8 @@ export {
     startRequest,
     completeRequest,
     getInvites,
+    addInvite,
+    deleteInvite,
     changeUserGroup,
     refreshToken,
 };

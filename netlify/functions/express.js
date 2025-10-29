@@ -72,7 +72,7 @@ router.post('/users/register', async (request, response) => {
 
         await inviteCollection.deleteOne({ code: invite });
 
-        response.status(201).json({ message: 'User registered successfully' });
+        response.status(201).json({ message: 'Bruger registreret med succes' });
 
     });
 });
@@ -118,7 +118,7 @@ router.get('/users/me', async (request, response) => {
         const { user } = jwt.verify(token, process.env.JWT_SECRET);
         response.json({ user });
     } catch (error) {
-        const message = error.name === 'TokenExpiredError' ? `Token expired at ${error.expiredAt}` : 'Invalid token';
+        const message = error.name === 'TokenExpiredError' ? `Token udløbet den ${error.expiredAt}` : 'Ugyldigt token';
         response.status(401).json({ error: message });
     }
 });
@@ -135,7 +135,7 @@ try {
         const userData = await collection.findOne({ username: user.username.toLowerCase() });
         
         if (!userData) {
-            return response.status(401).json({ error: 'Invalid user.' });
+            return response.status(401).json({ error: 'Ugyldig bruger.' });
         }
 
         const newToken = jwt.sign({
@@ -150,7 +150,7 @@ try {
         response.json({ token: newToken });
     } catch (error) {
         console.error('Error refreshing token:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
 });
 
@@ -162,7 +162,7 @@ router.put('/users/:id/group', authenticationMiddleware, async (request, respons
 
     request.on('data', async data => {
         const { group } = JSON.parse(data.toString());
-        if (!group) return response.status(400).json({ error: 'Group is required.' });
+        if (!group) return response.status(400).json({ error: 'Gruppe er påkrævet.' });
 
         const database = client.db(DB_NAME);
         const collection = database.collection('users');
@@ -170,10 +170,10 @@ router.put('/users/:id/group', authenticationMiddleware, async (request, respons
         const result = await collection.updateOne({ _id: new ObjectId(userId) }, { $set: { group } });
 
         if (result.modifiedCount === 0) {
-            return response.status(404).json({ error: 'User not found.' });
+            return response.status(404).json({ error: 'Bruger ikke fundet.' });
         }
 
-        response.json({ message: 'User group updated successfully.' });
+        response.json({ message: 'Brugergruppe opdateret med succes.' });
     });
 });
 
@@ -192,7 +192,7 @@ router.get('/requests/all', authenticationMiddleware, async (request, response) 
         response.json(requests);
     } catch (error) {
         console.error('Error fetching requests:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     } finally {
 
     }
@@ -222,7 +222,7 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
         response.json(requests);
     } catch (error) {
         console.error('Error fetching open requests:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     } finally {
 
     }
@@ -257,7 +257,7 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
         response.json(requests);
     } catch (error) {
         console.error('Error fetching open requests:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     } finally {
 
     }
@@ -275,7 +275,7 @@ router.get('/groups/all', authenticationMiddleware, async (request, response) =>
         response.json(groups);
     } catch (error) {
         console.error('Error fetching groups:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
 
 });
@@ -328,7 +328,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
             response.status(201).json(result);
         } catch (error) {
             console.error('Error creating request:', error);
-            response.status(500).json({ error: 'Internal Server Error' });
+            response.status(500).json({ error: 'Intern serverfejl' });
         }
         finally {
 
@@ -339,8 +339,8 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
 router.put('/requests/:id/start', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
-    if (!requestId) return response.status(400).json({ error: 'Request ID is required.' });
-    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Invalid request ID format.' });
+    if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
+    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
     if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
 
     try {
@@ -357,17 +357,17 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
             }
         );
         if (result.modifiedCount === 0) {
-            return response.status(404).json({ error: 'Request not found or already started.' });
+            return response.status(404).json({ error: 'Anmodning ikke fundet eller allerede startet.' });
         }
 
         const userId = (await collection.findOne({ _id: new ObjectId(requestId) })).user_id.toString();
         const adminName = request.user.username.charAt(0).toUpperCase() + request.user.username.slice(1);
 
         await sendNotification(userId, `${adminName} er på vej for at hjælpe dig!`);
-        response.status(200).json({ message: 'Request marked as started.' });
+        response.status(200).json({ message: 'Anmodning markeret som startet.' });
     } catch (error) {
         console.error('Error starting request:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
     finally {
 
@@ -378,8 +378,8 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
 router.put('/requests/:id/complete', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
-    if (!requestId) return response.status(400).json({ error: 'Request ID is required.' });
-    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Invalid request ID format.' });
+    if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
+    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
 
 
 
@@ -389,7 +389,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
         const collection = database.collection('requests');
 
         const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
-        if (!existingRequest) return response.status(404).json({ error: 'Request not found.' });
+        if (!existingRequest) return response.status(404).json({ error: 'Anmodning ikke fundet.' });
         if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
             return response.status(403).json({ error: 'Du har ikke rettigheder til at fuldføre denne anmodning.' });
         }
@@ -404,12 +404,12 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
         );
 
         if (result.modifiedCount === 0) {
-            return response.status(404).json({ error: 'Request not found or already completed.' });
+            return response.status(404).json({ error: 'Anmodning ikke fundet eller allerede fuldført.' });
         }
-        response.status(200).json({ message: 'Request marked as completed.' });
+        response.status(200).json({ message: 'Anmodning markeret som fuldført.' });
     } catch (error) {
         console.error('Error completing request:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
     finally {
 
@@ -423,7 +423,7 @@ router.post('/notifications/:uuid', authenticationMiddleware, async (request, re
         const uuid = request.params.uuid;
         const userId = new ObjectId(request.user.id);
 
-        if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
+        if (!uuid) return response.status(400).json({ error: 'UUID er påkrævet.' });
 
         const subscription = JSON.parse(data.toString());
 
@@ -433,30 +433,30 @@ router.post('/notifications/:uuid', authenticationMiddleware, async (request, re
 
         await collection.insertOne({ uuid, user_id: userId, subscription });
 
-        response.status(201).json({ message: 'Subscription saved successfully.' });
+        response.status(201).json({ message: 'Abonnement gemt med succes.' });
     });
 });
 
 router.delete('/notifications/:uuid', authenticationMiddleware, async (request, response) => {
     const uuid = request.params.uuid;
-    if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
+    if (!uuid) return response.status(400).json({ error: 'UUID er påkrævet.' });
     try {
         const database = client.db(DB_NAME);
         const collection = database.collection('push_subscriptions');
         const result = await collection.deleteOne({ uuid });
         if (result.deletedCount === 0) {
-            return response.status(404).json({ error: 'Subscription not found.' });
+            return response.status(404).json({ error: 'Abonnement ikke fundet.' });
         }
-        response.status(200).json({ message: 'Subscription deleted successfully.' });
+        response.status(200).json({ message: 'Abonnement slettet med succes.' });
     } catch (error) {
         console.error('Error deleting subscription:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
 });
 
 router.get('/notifications/:uuid', async (request, response) => {
     const uuid = request.params.uuid;
-    if (!uuid) return response.status(400).json({ error: 'UUID is required.' });
+    if (!uuid) return response.status(400).json({ error: 'UUID er påkrævet.' });
     try {
 
         const database = client.db(DB_NAME);
@@ -464,14 +464,14 @@ router.get('/notifications/:uuid', async (request, response) => {
         const subscription = await collection.findOne({ 'subscription.uuid': uuid });
 
         if (!subscription) {
-            return response.status(404).json({ error: 'Subscription not found.' });
+            return response.status(404).json({ error: 'Abonnement ikke fundet.' });
         }
 
         return response.json(subscription.subscription);
 
     } catch (error) {
         console.error('Error fetching subscription by UUID:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
 });
 
@@ -488,7 +488,60 @@ router.get('/invites', authenticationMiddleware, async (request, response) => {
         response.status(200).json(invites);
     } catch (error) {
         console.error('Error fetching invites:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
+        response.status(500).json({ error: 'Intern serverfejl' });
     }
 });
 
+router.post('/invites', authenticationMiddleware, async (request, response) => {
+
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    request.on('data', async data => {
+        const { code, group, role } = JSON.parse(data.toString());
+
+        if (!code) return response.status(400).json({ error: 'Invitationskode er påkrævet.' });
+        if (!group) return response.status(400).json({ error: 'Gruppe er påkrævet.' });
+        if (!role) return response.status(400).json({ error: 'Rolle er påkrævet.' });
+
+        if (role !== 'user' && role !== 'admin') {
+            return response.status(400).json({ error: 'Rolle skal være enten "user" eller "admin".' });
+        }
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection('invites');
+
+        const existingInvite = await collection.findOne({ code });
+        if (existingInvite) {
+            return response.status(400).json({ error: 'Invitationskode eksisterer allerede.' });
+        }
+
+        const result = await collection.insertOne({ code, group, role });
+        response.status(201).json({ message: 'Invitation oprettet med succes.', inviteId: result.insertedId });
+    });
+});
+
+router.delete('/invites/:id', authenticationMiddleware, async (request, response) => {
+
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+    const inviteId = request.params.id;
+
+    if (!inviteId) return response.status(400).json({ error: 'Invitations-ID er påkrævet.' });
+    if (!ObjectId.isValid(inviteId)) return response.status(400).json({ error: 'Ugyldigt invitations-ID format.' });
+
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('invites');
+        const result = await collection.deleteOne({ _id: new ObjectId(inviteId) });
+        if (result.deletedCount === 0) {
+            return response.status(404).json({ error: 'Invitation ikke fundet.' });
+        }
+        response.status(200).json({ message: 'Invitation slettet med succes.' });
+    } catch (error) {
+        console.error('Error deleting invite:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});

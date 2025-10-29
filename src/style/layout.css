@@ -50,14 +50,12 @@ main {
 summary {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   font-weight: bold;
+  list-style-type: none;
 }
 
-summary::marker {
-  content: '';
-}
-
-summary::before {
+summary::after {
   content: '›';
   margin-right: .4rem;
   font-size: 1.5rem;
@@ -68,7 +66,7 @@ summary::before {
   transition: transform 200ms ease-in;
 }
 
-details[open] summary::before {
+details[open] summary::after {
   transform: rotate(90deg);
 }
 

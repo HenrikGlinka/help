@@ -4,22 +4,24 @@ import { PiSpinner } from 'react-icons/pi';
 import { Alert, AlertTitle } from '@mui/material';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { postRequest } from '../helpers/api';
+import { useAlert } from '../contexts/alert-context';
 
 export default function LoginPage() {
 
     const MAX_DESCRIPTION_LENGTH = 200;
 
     const submitButton = useRef(null);
-    const [alertBox, setAlertBox] = useState(null);
     const [characterCount, setCharacterCount] = useState(0);
 
     const navigate = useNavigate();
+
+    const alert = useAlert();
 
 
     async function submitHandler(event) {
         event.preventDefault();
 
-        setAlertBox(null);
+        alert.hide();
 
         const form = event.target;
         form.inert = true;
@@ -29,13 +31,13 @@ export default function LoginPage() {
 
         if (data.title === '') {
             form.inert = false;
-            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i overskrift</AlertTitle>Du skal indtaste en overskrift på dit spørgsmål</Alert>));
+            alert.warning("Fejl i overskrift", "Du skal indtaste en overskrift på dit spørgsmål");
             return;
         }
 
         if (data.description === '') {
             form.inert = false;
-            setTimeout(() => setAlertBox(<Alert variant="filled" severity="warning"><AlertTitle>Fejl i beskrivelse</AlertTitle>Du skal indtaste en beskrivelse af dit spørgsmål</Alert>));
+            alert.warning("Fejl i beskrivelse", "Du skal indtaste en beskrivelse af dit spørgsmål");
             return;
         }
 
@@ -45,7 +47,7 @@ export default function LoginPage() {
             setTimeout(() => navigate('/'), 1000);
         } else {
             form.inert = false;
-            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Fejl i oprrettelse af spørgsmål</AlertTitle>{response.error}</Alert>);
+            alert.error("Fejl i oprrettelse af spørgsmål", response.error);
         }
 
     }
@@ -74,11 +76,9 @@ export default function LoginPage() {
                         <span className='text-xs text-gray-500 text-right'>{characterCount} / {MAX_DESCRIPTION_LENGTH} tegn</span>
                     </label>
                     <button className="approve" ref={submitButton} type="submit"><span>Stil spørgsmål</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
-                    <button className='cancel' onClick={() => navigate('/')}>Tilbage</button>
+                    <Link to="/" className="button-like cancel">Tilbage</Link>
 
                 </form>
-
-                {alertBox}
             </main>
 
         </>

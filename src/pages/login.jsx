@@ -5,14 +5,15 @@ import { Alert, AlertTitle } from '@mui/material';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { postLogin } from '../helpers/api';
 import { useLogin } from '../contexts/login-context';
+import { useAlert } from '../contexts/alert-context';
 
 export default function LoginPage() {
 
     const submitButton = useRef(null);
-    const [alertBox, setAlertBox] = useState(null);
     const [params] = useSearchParams();
 
     const user = useLogin();
+    const alert = useAlert();
 
     const username = params.get('user') || '';
 
@@ -20,8 +21,6 @@ export default function LoginPage() {
 
     async function submitHandler(event) {
         event.preventDefault();
-
-        setAlertBox(null);
 
         const form = event.target;
         form.inert = true;
@@ -37,8 +36,8 @@ export default function LoginPage() {
             await user.update();
             setTimeout(() => navigate('/'), 500);
         } else {
-            form.inert = false;
-            setAlertBox(<Alert variant="filled" severity="error"><AlertTitle>Kunne ikke logge ind</AlertTitle>{response?.error ?? 'Der opstod en fejl under login'}</Alert>);
+            form.inert = false;           
+            alert.error("Kunne ikke logge ind", response?.error);
         }
 
     }
@@ -47,7 +46,6 @@ export default function LoginPage() {
         <>
             <Header title="Henrik.help"></Header>
             <main>
-
                 <h2>Log ind</h2>
                 <form onSubmit={submitHandler} className='
                     flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black
@@ -73,8 +71,6 @@ export default function LoginPage() {
                 </form>
                 <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du ikke en konto?</p>
                 <Link to="/register" className="text-green-500 text-center underline">Opret dig her</Link>
-
-                {alertBox}
             </main>
 
         </>
