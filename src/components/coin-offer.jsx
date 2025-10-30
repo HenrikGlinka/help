@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { IoWarning } from "react-icons/io5";
 import coinIcon from '../assets/images/shop/coin-icon.webp';
 import coinsSmall from '../assets/images/shop/coins-small.webp';
 import coinsMedium from '../assets/images/shop/coins-medium.webp';
@@ -21,7 +20,7 @@ export default function CoinOffer() {
     return (
         <>
             <div className="bg-yellow-600 text-white p-3 rounded-lg shadow-md space-y-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-1rem)] md:max-w-2xl z-50">
-                <h2 className="text-2xl flex items-center justify-between animate-[pulse_1s_infinite]">
+                <h2 className="text-2xl flex items-center justify-between my-0 animate-[pulse_1s_infinite]">
                     <img src={coinIcon} alt="Henrik Coins" className="h-8 inline-block" />
                     <span className="font-bold">Tilbud på HenrikCoins!</span>
                     <img src={coinIcon} alt="Henrik Coins" className="h-8 inline-block" />
@@ -31,8 +30,8 @@ export default function CoinOffer() {
                 flex gap-2 text-sm flex-col md:flex-row justify-stretch items-stretch
                 [&_h3]:text-xl [&_p]:text-center [&_p]:text-xl
                 marker:text-blue-500 marker:block
-                [&_li_ul]:mx-auto[&_li_ul]:-indent-2 [&_li]:flex-1 [&_li]:pl-3 [&_li]:items-center [&_li>img]:h-20 [&_li>img]:w-min
-                [&_li]:flex [&_li]:flex-col [&_li]:gap-2 [&_li]:justify-between
+                [&_li_ul]:mx-auto[&_li_ul]:-indent-2 [&_li]:flex-1 [&_li]:pl-3 [&_li]:items-center [&_li>img]:h-20 [&_li>img]:w-auto
+                [&_li]:flex [&_li]:flex-col [&_li]:gap-2 [&_li]:justify-between  [&_li]:items-center
                 [&_li_small]:-rotate-2 [&_li_small]:text-green-500 [&_li_small]:-mt-3 [&_li_small]:text-center
                 [&_button]:mt-auto [&_button]:w-full
                 ">
