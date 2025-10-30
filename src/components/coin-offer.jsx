@@ -26,7 +26,7 @@ export default function CoinOffer() {
                     <span className="font-bold">Tilbud på HenrikCoins!</span>
                     <img src={coinIcon} alt="Henrik Coins" className="h-8 inline-block" />
                 </h2>
-                <p className="text-center text-sm m-0">Kun i de næste <Timer className="text-red-700 bold" startTime="10:00" /> minutter!</p>
+                <p className="text-center text-sm m-0">Kun i de næste <Timer className="text-red-700 bold" startTime="03:00" onEnd={hideOffer} /> minutter!</p>
                 <ul className="
                 flex gap-2 text-sm flex-col md:flex-row justify-stretch items-stretch
                 [&_h3]:text-xl [&_p]:text-center [&_p]:text-xl
