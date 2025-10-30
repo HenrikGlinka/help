@@ -9,6 +9,8 @@ import messageSound from "../assets/audio/sounds/icq-message.mp3";
 import { useLogin } from "../contexts/login-context";
 import SpecialOffer from "../components/special-offer";
 import { useAlert } from "../contexts/alert-context";
+import CoinDisplay from "../components/coin-display";
+import CoinOffer from "../components/coin-offer";
 
 export default function IndexPage() {
 
@@ -87,6 +89,7 @@ export default function IndexPage() {
 
     return (
         <>
+        <CoinOffer />
             <Header title="Henrik.help"></Header>
             <main className="justify-between">
                 <h2>Venteliste for <span className="italic">{user.data?.group.toLowerCase() === 'all' ? 'samtlige hold' : user.data?.group.toUpperCase()}</span></h2>
@@ -105,7 +108,12 @@ export default function IndexPage() {
                     }
                 </div>
                 <menu className="mt-auto">
-                    <li><button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />Nyt spørgsmål</button></li>
+                    <li className="flex items-center gap-4">
+                        <button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />
+                        Nyt spørgsmål
+                        </button>
+                        <CoinDisplay />
+                        </li>
                 </menu>
             </main>
         </>
