@@ -71,7 +71,8 @@ export default function AdminPage() {
                     [&_button]:text-sm [&_button]:font-bold
                     [&[inert]_button_svg]:block [&[inert]_button_span]:hidden'
                 >
-                    <h3>Opret ny invitation</h3>
+                    <details name="admin">
+                        <summary><h3>Opret ny invitation</h3></summary>
                     <label>
                         <span>Rolle:</span>
                         <select name="role" defaultValue="user" onChange={event => {
@@ -102,15 +103,16 @@ export default function AdminPage() {
                         <span>Invitationsnøgle:</span>
                         <input className="key" type="text" name="invite" placeholder="Indtast invitationsnøgle" />
                     </label>
-                    <button type="submit" className="approve">Opret invitation</button>
+                    <button type="submit" className="approve w-full">Opret invitation</button>
+                    </details>
                 </form>
 
                 <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black text-left mb-2 cursor-pointer">
-                    <details>
+                    <details name="admin">
                         <summary><h3>Eksisterende invitationer</h3></summary>
                         {invites && invites.length > 0 ? (
                             <table className="
-                            w-full text-sm mt-4
+                            w-full text-sm
                             [&>tbody>tr>td]:p-2 text-center 
                             [&>tbody>tr]:nth-[odd]:bg-gray-200 dark:[&>tbody>tr]:nth-[odd]:bg-gray-800
                             [&>tbody>tr>td]:first:text-left [&>thead>tr>th]:first:text-left
@@ -127,7 +129,7 @@ export default function AdminPage() {
                                     {invites.map((invite) => (
                                         <tr key={invite._id}>
                                             <td className="key">{invite.code}</td>
-                                            <td>{invite.role}</td>
+                                            <td>{invite.role === 'admin' ? 'Administrator' : 'Bruger'}</td>
                                             <td>{invite.group}</td>
                                             <td><button className="cancel !px-0 w-7 h-7" onClick={() => handleDeleteInvite(invite._id)}><BsTrash3 size={18} /></button></td>
                                         </tr>

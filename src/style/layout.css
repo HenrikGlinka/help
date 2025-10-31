@@ -47,6 +47,25 @@ main {
   flex-grow: 1;
 }
 
+details {
+  cursor: pointer;
+}
+
+details::details-content {
+  overflow: clip;
+  height: 0;
+  transition: 300ms ease-in-out;
+  transition-property: all;
+  content-visibility: visible;
+  padding-top: 0;
+}
+
+details[open]::details-content {
+  padding-top: 1rem;
+  height: auto;
+  height: calc-size(auto, size);
+}
+
 summary {
   display: flex;
   align-items: center;

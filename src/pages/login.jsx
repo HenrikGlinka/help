@@ -19,6 +19,8 @@ export default function LoginPage() {
 
     const navigate = useNavigate();
 
+    if (user.data && !user.isLoading) navigate('/');
+
     async function submitHandler(event) {
         event.preventDefault();
 
