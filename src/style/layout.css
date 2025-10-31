@@ -129,6 +129,18 @@ button.cancel, .button-like.cancel {
   background-color: var(--button-cancel-color-dark);
 }
 
+button.text, .button-like.text {
+  background-color: transparent;
+  font-weight: normal;
+  color: var(--button-approve-color);
+  font-size: medium;
+  padding: .45rem 0;
+  margin: 0;
+  border-radius: 0;
+}
+
+
+
 button:hover:not(:disabled), .button-like:hover:not(:disabled) {
   filter: brightness(1.1);
   transform: scale(1.01);

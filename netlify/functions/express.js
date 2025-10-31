@@ -113,7 +113,6 @@ router.post('/users/login', async (request, response) => {
 router.get('/users/me', async (request, response) => {
 
     try {
-
         const token = request.headers.authorization?.split(' ')[1];
         const { user } = jwt.verify(token, process.env.JWT_SECRET);
         response.json({ user });

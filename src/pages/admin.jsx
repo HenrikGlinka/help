@@ -5,6 +5,7 @@ import { Link } from "react-router";
 import { BsTrash3 } from "react-icons/bs";
 import { useLogin } from "../contexts/login-context";
 import { useAlert } from "../contexts/alert-context";
+import Spinner from "../components/spinner";
 
 export default function AdminPage() {
 
@@ -53,7 +54,7 @@ export default function AdminPage() {
                 <Header title="Henrik.help"></Header>
                 <main>
                     <h2>Administrator panel</h2>
-                    <p>Indlæser...</p>
+                    <Spinner />
                 </main>
             </>
         )

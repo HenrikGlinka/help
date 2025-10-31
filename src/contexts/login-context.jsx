@@ -15,14 +15,18 @@ export function LoginProvider({ children }) {
 
     useEffect(() => {
         if (localStorage.getItem('token') !== null) update();
-        else logout();
+        else setIsLoading(false);
     }, []);
 
     useEffect(() => { if (!isLoading && !data) logout() }, [isLoading, data]);
 
     const update = async () => {
 
+        console.log('Fetching user data...');
+        
         const result = await getUserInfo();
+
+        console.log('User data fetched:', result);
 
         setData(result.user);
         setRecievesNotifications(await isSubscribedToNotifications());
@@ -41,7 +45,6 @@ export function LoginProvider({ children }) {
         const result = await getUserInfo();
         return result?.user !== undefined;
     }
-
 
     return (
         <LoginContext.Provider value={{ data, recievesNotifications, isLoading, update, tokenIsValid, logout }}>

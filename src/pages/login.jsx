@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { postLogin } from '../helpers/api';
 import { useLogin } from '../contexts/login-context';
 import { useAlert } from '../contexts/alert-context';
+import Spinner from '../components/spinner';
 
 export default function LoginPage() {
 
@@ -42,6 +43,17 @@ export default function LoginPage() {
             alert.error("Kunne ikke logge ind", response?.error);
         }
 
+    }
+
+    if (user.isLoading) {
+        return (
+            <>
+                <Header title="Henrik.help"></Header>
+                <main>
+                    <Spinner />
+                </main>
+            </>
+        )
     }
 
     return (

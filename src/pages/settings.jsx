@@ -114,6 +114,13 @@ export default function Settings() {
                             </select>
                         </label>
                     </li>
+                    <li>
+                        <label>
+                            <button onClick={() => localStorage.removeItem('coin-offer')} className="w-fit text">
+                                Nulstil tilbud
+                            </button>
+                        </label>
+                    </li>
                 </ul>
                 <Link className="button-like mt-auto" to="/"><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
             </main>
