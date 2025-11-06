@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import { subscribeToNotifications, unsubscribeFromNotifications } from "../utilities/push-notifications";
 import { changeUserGroup, getAllGroups } from "../helpers/api";
 import { useLogin } from "../contexts/login-context";
+import { useAlert } from "../contexts/alert-context";
 
 const groupsPromise = getAllGroups();
 
@@ -15,6 +16,7 @@ export default function Settings() {
     const groupRef = useRef();
 
     const user = useLogin();
+    const alert = useAlert();
 
     if (!user.isLoading && !user.data) user.logout();
 
@@ -116,7 +118,10 @@ export default function Settings() {
                     </li>
                     <li>
                         <label>
-                            <button onClick={() => localStorage.removeItem('coin-offer')} className="w-fit text">
+                            <button onClick={() => {
+                                localStorage.removeItem('coin-offer');
+                                alert.success("Tilbud nulstillet", "Tilbud er nu nulstillet og vil blive vist igen.");
+                            }} className="w-fit text">
                                 Nulstil tilbud
                             </button>
                         </label>

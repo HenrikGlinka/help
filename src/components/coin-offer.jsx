@@ -38,19 +38,19 @@ export default function CoinOffer() {
                     <li className="bg-blue-950 p-2 rounded-lg">
                         <img src={coinsSmall} alt="En lille bunke Henrik Coins" />
                         <h3>500<img src={coinIcon} alt="Henrik Coins" className="h-5 inline-block ml-0.5" /></h3>
-                        <button onClick={hideOffer}>10 kr</button>
+                        <button onClick={() => { localStorage.setItem('coins', 500); hideOffer(); }}>10 kr</button>
                     </li>
                     <li className="bg-blue-950 p-2 rounded-lg">
                         <img src={coinsMedium} alt="En mellem bunke Henrik Coins" />
                         <h3>3000<img src={coinIcon} alt="Henrik Coins" className="h-5 inline-block ml-0.5" /></h3>
                         <small>Den mest populære!</small>
-                        <button onClick={hideOffer}>99 kr</button>
+                        <button onClick={() => { localStorage.setItem('coins', 3000); hideOffer(); }}>99 kr</button>
                     </li>
                     <li className="bg-blue-950 p-2 rounded-lg">
                         <img src={coinsLarge} alt="En stor bunke Henrik Coins" />
                         <h3>15000<img src={coinIcon} alt="Henrik Coins" className="h-5 inline-block ml-0.5" /></h3>
                         <small>Maksimal værdi for pengene!</small>
-                        <button onClick={hideOffer}>799 kr</button>
+                        <button onClick={() => { localStorage.setItem('coins', 15000); hideOffer(); }}>799 kr</button>
                     </li>
                 </ul>
 

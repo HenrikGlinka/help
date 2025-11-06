@@ -93,8 +93,10 @@ export default function RegisterPage() {
                     <button ref={submitButton} className="approve" type="submit"><span>Opret bruger</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
               
                 </form>
-                <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du allerede en konto?</p>
-                <Link to="/login" className="text-green-500 text-center underline">Log ind</Link>
+                <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black mt-auto">
+                    <h2 className='text-sm'>Har du allerede en konto?</h2>
+                    <Link to="/login" className="button-like">Log ind</Link>
+                </section>
             </main>
 
         </>

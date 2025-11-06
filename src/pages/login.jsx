@@ -39,7 +39,7 @@ export default function LoginPage() {
             await user.update();
             setTimeout(() => navigate('/'), 500);
         } else {
-            form.inert = false;           
+            form.inert = false;
             alert.error("Kunne ikke logge ind", response?.error);
         }
 
@@ -83,8 +83,10 @@ export default function LoginPage() {
                     </button>
 
                 </form>
-                <p className="text-sm text-gray-500 mt-2 text-center font-bold">Har du ikke en konto?</p>
-                <Link to="/register" className="text-green-500 text-center underline">Opret dig her</Link>
+                <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black mt-auto">
+                    <h2 className='text-sm'>Har du ikke en konto?</h2>
+                    <Link to="/register" className="button-like">Opret ny bruger</Link>
+                </section>
             </main>
 
         </>
