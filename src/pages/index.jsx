@@ -111,7 +111,7 @@ export default function IndexPage() {
                         <button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />
                             Nyt spørgsmål
                         </button>
-                        <CoinDisplay />
+                        {/* <CoinDisplay /> */}
                     </li>
                 </menu>
             </main>
