@@ -26,8 +26,6 @@ export function LoginProvider({ children }) {
         
         const result = await getUserInfo();
 
-        console.log('User data fetched:', result);
-
         setData(result.user);
         setRecievesNotifications(await isSubscribedToNotifications());
         localStorage.setItem('group', result.user?.group || 'all');

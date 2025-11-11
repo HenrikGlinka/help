@@ -10,7 +10,6 @@ import { sendNotification } from "./notifications.js";
 
 dotenv.config();
 
-/* const PORT = process.env.SERVER_PORT; */
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = 'help';
 
@@ -31,7 +30,6 @@ app.use(express.json());
 app.use("/api/", router);
 
 export const handler = serverless(app);
-
 
 router.post('/users/register', async (request, response) => {
 
@@ -227,7 +225,6 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
     }
 });
 
-
 router.get('/requests/:group/open', authenticationMiddleware, async (request, response) => {
     try {
 
@@ -338,11 +335,13 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
 router.put('/requests/:id/start', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
-    if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
-    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
-    if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
+    console.log(request.user);
+    
 
-    try {
+    if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
+    else if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
+    else if (request.user.role !== "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
+    else try {
 
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
@@ -368,11 +367,7 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
         console.error('Error starting request:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
     }
-    finally {
-
-    }
 });
-
 
 router.put('/requests/:id/complete', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;

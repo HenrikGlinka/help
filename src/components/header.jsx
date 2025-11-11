@@ -19,9 +19,15 @@ export default function Header({ title }) {
                 <Link className="button-like w-full relative" to="/settings"><IoSettingsOutline className="mr-5 absolute left-4" size={20} />Indstillinger</Link>
                 {user.data?.role === 'admin' && <Link className="button-like w-full relative" to="/admin"><MdOutlineAdminPanelSettings className="mr-5 absolute left-4" size={20} />Admin</Link>}
                 <button onClick={user.logout} className="cancel w-full relative"><SlLogout className="mr-5 absolute left-4" size={20} />Log ud</button>
-            </BurgerMenu> }
+            </BurgerMenu>}
             <h1 className="text-gray-700 dark:text-gray-200 mb-0 col-start-2">{title}</h1>
-            {user.data?.username && <p className="text-xs text-right text-gray-500">Logget ind som: <br /><span className="font-bold text-sm">{username}</span></p>}
+            {user.data?.username &&
+                <p className="text-xs text-right text-gray-500">
+                    Logget ind som: <br />
+                    <span className="font-bold text-sm">{username}</span>
+                    <span className="bg-black text-white mx-1 px-1 py-[.2] rounded-sm text-xs font-bold">Lv. 1</span>
+                </p>
+            }
         </header>
     )
 }

@@ -37,8 +37,8 @@ const postRequest = async (data) => await fetchData('api/requests', 'POST', data
 const postRegister = async (data) => await fetchData('api/users/register', 'POST', data);
 const postLogin = async (data) => await fetchData('api/users/login', 'POST', data);
 
-const startRequest = async (id) => await fetchData(`api/requests/${id}/start`, 'PUT');
-const completeRequest = async (id) => await fetchData(`api/requests/${id}/complete`, 'PUT');
+const startRequest = async (ticketId) => await fetchData(`api/requests/${ticketId}/start`, 'PUT');
+const completeRequest = async (ticketId) => await fetchData(`api/requests/${ticketId}/complete`, 'PUT');
 
 const getInvites = async () => await fetchData('api/invites');
 const addInvite = async (data) => await fetchData('api/invites', 'POST', data);
