@@ -6,6 +6,8 @@ import BurgerMenu from "./burger-menu";
 import { SlLogout } from "react-icons/sl";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { BsHouse } from "react-icons/bs";
+import { ExperienceBar } from "./experience-bar";
+import { getLevel } from "../helpers/leveling";
 
 export default function Header({ title }) {
 
@@ -22,11 +24,13 @@ export default function Header({ title }) {
             </BurgerMenu>}
             <h1 className="text-gray-700 dark:text-gray-200 mb-0 col-start-2">{title}</h1>
             {user.data?.username &&
-                <p className="text-xs text-right text-gray-500">
-                    Logget ind som: <br />
-                    <span className="font-bold text-sm">{username}</span>
-                    <span className="bg-black text-white mx-1 px-1 py-[.2] rounded-sm text-xs font-bold">Lv. 1</span>
-                </p>
+                <div className="text-xs text-right text-gray-500 w-fit justify-self-end">
+                    <p>Logget ind som:</p>
+                    <p className="font-bold text-sm">{username}
+                        <span className="bg-black text-white dark:bg-white dark:text-black mx-1 px-1 py-[.2] rounded-sm text-xs font-bold">Lv. {getLevel(user.data?.exp) || 1}</span>
+                    </p>
+                    <ExperienceBar />
+                </div>
             }
         </header>
     )

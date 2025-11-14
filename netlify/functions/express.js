@@ -101,6 +101,7 @@ router.post('/users/login', async (request, response) => {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
+                exp: userData.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
