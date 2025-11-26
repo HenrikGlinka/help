@@ -31,7 +31,7 @@ export default function CoinOffer() {
                 [&_h3]:text-xl [&_p]:text-center [&_p]:text-xl
                 marker:text-blue-500 marker:block
                 [&_li_ul]:mx-auto[&_li_ul]:-indent-2 [&_li]:flex-1 [&_li]:pl-3 [&_li]:items-center [&_li>img]:h-20 [&_li>img]:w-auto
-                [&_li]:flex [&_li]:flex-col [&_li]:gap-2 [&_li]:justify-between  [&_li]:items-center
+                [&_li]:flex [&_li]:flex-col [&_li]:gap-2 [&_li]:justify-between 
                 [&_li_small]:-rotate-2 [&_li_small]:text-green-500 [&_li_small]:-mt-3 [&_li_small]:text-center
                 [&_button]:mt-auto [&_button]:w-full
                 ">
