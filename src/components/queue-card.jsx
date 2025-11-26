@@ -55,9 +55,10 @@ export default function QueueCard({ ticket, onUpdate = null }) {
 
     return (
         <div className="bg-white border rounded-2xl p-4 grid-cols-[1fr_auto_auto] grid mb-1 dark:bg-black">
-            <details className="col-span-3 mb-2" name="ticket-details">
+            <details className="col-span-3 mb-2 group" name="ticket-details">
                 <summary className="flex justify-between gap-1 items-center">
-                    <p className="w-full">{ticket.title}</p>
+                    <p className="">{ticket.title}</p>
+                    <p className="text-2xl font-normal group-open:rotate-90 mr-auto transition-transform">›</p>
                     <p className={`${statusColor} text-white self-start px-3 py-1 shrink-0 text-xs flex items-center font-bold rounded-lg min-w-18 justify-center uppercase`}>
                         {status}
                     </p>
@@ -65,7 +66,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                 <p className="text-sm text-gray-600 my-1">{ticket.description}</p>
             </details>
 
-            <p className="[&:first-letter]:uppercase">{ticket.owner} <span className="text-xs font-bold text-white bg-gray-500 p-[.05rem_.2rem] rounded-xs">{ticket?.group?.toUpperCase()}</span></p>
+            <p className="[&:first-letter]:uppercase truncate max-w-[10ch]">{ticket.owner} <span className="text-xs font-bold text-white bg-gray-500 p-[.05rem_.2rem] rounded-xs">{ticket?.group?.toUpperCase()}</span></p>
             <p className="col-span-2 text-sm self-center">{formatDate(ticket.creation_date, 'kl. HH:mm')}</p>
 
             {(!ticket.response_date || ticket.isOwner || ticket.isAdmin) &&

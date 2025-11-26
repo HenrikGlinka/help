@@ -24,12 +24,11 @@ export default function Header({ title }) {
             </BurgerMenu>}
             <h1 className="text-gray-700 dark:text-gray-200 mb-0 col-start-2">{title}</h1>
             {user.data?.username &&
-                <div className="text-xs text-right text-gray-500 w-fit justify-self-end">
-                    <p>Logget ind som:</p>
-                    <p className="font-bold text-sm">{username}
-                        <span className="bg-black text-white dark:bg-white dark:text-black mx-1 px-1 py-[.2] rounded-sm text-xs font-bold">Lv. {getLevel(user.data?.exp) || 1}</span>
-                    </p>
-                    <ExperienceBar />
+                <div className="text-xs text-right text-gray-500 w-fit justify-self-end grid grid-cols-[1fr_auto] items-center">
+                    <p className="col-span-2">Logget ind som:</p>
+                    <p className="font-bold text-sm truncate max-w-[10ch]">{username}</p>
+                    <p className="bg-black text-white w-min whitespace-nowrap dark:bg-white dark:text-black mx-1 px-1 py-[.2] rounded-sm text-xs font-bold">Lv. {getLevel(user.data?.exp) || 1}</p>
+                    <ExperienceBar className="col-span-2" />
                 </div>
             }
         </header>

@@ -16,12 +16,7 @@ body.dark {
   border-color: var(--border-color-dark);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   text-align: center;
 }
@@ -72,17 +67,6 @@ summary {
   justify-content: space-between;
   font-weight: bold;
   list-style-type: none;
-}
-
-summary::after {
-  content: '›';
-  margin-right: .4rem;
-  font-size: 1.5rem;
-  line-height: 1rem;
-  font-weight: normal;
-  font-family: inherit;
-  margin-right: 0.5rem;
-  transition: transform 200ms ease-in;
 }
 
 details[open] summary::after {

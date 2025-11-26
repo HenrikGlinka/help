@@ -376,8 +376,6 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
     if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
     if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
 
-
-
     try {
 
         const database = client.db(DB_NAME);
@@ -401,6 +399,16 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
         if (result.modifiedCount === 0) {
             return response.status(404).json({ error: 'Anmodning ikke fundet eller allerede fuldført.' });
         }
+
+        // Award 1 exp point to the user if completed by an admin
+        if (request.user.role === 'admin') {
+            const usersCollection = database.collection('users');
+            await usersCollection.updateOne(
+                { _id: existingRequest.user_id },
+                { $inc: { exp: 1 } } 
+            );
+        }
+
         response.status(200).json({ message: 'Anmodning markeret som fuldført.' });
     } catch (error) {
         console.error('Error completing request:', error);
