@@ -7,10 +7,7 @@ import { Skeleton } from "@mui/material";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
 import { useLogin } from "../contexts/login-context";
-import SpecialOffer from "../components/special-offer";
 import { useAlert } from "../contexts/alert-context";
-import CoinDisplay from "../components/coin-display";
-import CoinOffer from "../components/coin-offer";
 
 export default function IndexPage() {
 
@@ -31,11 +28,14 @@ export default function IndexPage() {
             user.logout();
             return;
         }
+        
+        await user.update();
 
         const requests = await getOpenRequests(user.data.group);
 
-
         if (requests.error) return user.logout();
+
+
 
         if (requests.length > 0) {
             const newTicketIds = requests.map(req => req._id);
@@ -111,7 +111,6 @@ export default function IndexPage() {
                         <button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />
                             Nyt spørgsmål
                         </button>
-                        {/* <CoinDisplay /> */}
                     </li>
                 </menu>
             </main>

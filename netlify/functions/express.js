@@ -10,7 +10,6 @@ import { sendNotification } from "./notifications.js";
 
 dotenv.config();
 
-/* const PORT = process.env.SERVER_PORT; */
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = 'help';
 
@@ -31,7 +30,6 @@ app.use(express.json());
 app.use("/api/", router);
 
 export const handler = serverless(app);
-
 
 router.post('/users/register', async (request, response) => {
 
@@ -103,6 +101,7 @@ router.post('/users/login', async (request, response) => {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
+                exp: userData?.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
@@ -123,7 +122,7 @@ router.get('/users/me', async (request, response) => {
 });
 
 router.get('/users/me/refresh', authenticationMiddleware, async (request, response) => {
-try {
+    try {
 
         const token = request.headers.authorization?.split(' ')[1];
         const { user } = jwt.verify(token, process.env.JWT_SECRET);
@@ -132,7 +131,7 @@ try {
         const collection = database.collection('users');
 
         const userData = await collection.findOne({ username: user.username.toLowerCase() });
-        
+
         if (!userData) {
             return response.status(401).json({ error: 'Ugyldig bruger.' });
         }
@@ -143,6 +142,7 @@ try {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
+                exp: userData?.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
@@ -227,7 +227,6 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
     }
 });
 
-
 router.get('/requests/:group/open', authenticationMiddleware, async (request, response) => {
     try {
 
@@ -306,6 +305,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
                 user_id: userId,
                 creation_date: new Date(),
                 owner: request.user.username,
+                owner_exp: request.user.exp || 0,
             };
 
             if (request.user.group) newRequest.group = request.user.group.toLowerCase();
@@ -338,20 +338,35 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
 router.put('/requests/:id/start', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
-    if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
-    if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
-    if (!request.user.type === "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
+    console.log(request.user);
 
-    try {
+
+    if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
+    else if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
+    else try {
 
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
+
+        // Check if the user offering help is already assigned to another open request
+        const existingAssignment = await collection.findOne({
+            responder_id: new ObjectId(request.user.id),
+            completion_date: { $exists: false }
+        });
+
+        if (existingAssignment) {
+            return response.status(400).json({ error: 'Du kan kun hjælpe én person ad gangen.' });
+        }
 
         const result = await collection.updateOne(
             { _id: new ObjectId(requestId) },
             {
                 $set: {
                     response_date: new Date(),
+                    responder_id: new ObjectId(request.user.id),
+                    responder_name: request.user.username,
+                    responder_group: request.user.group,
+                    responder_exp: request.user.exp || 0,
                 }
             }
         );
@@ -368,19 +383,13 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
         console.error('Error starting request:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
     }
-    finally {
-
-    }
 });
-
 
 router.put('/requests/:id/complete', authenticationMiddleware, async (request, response) => {
     const requestId = request.params.id;
 
     if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
     if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
-
-
 
     try {
 
@@ -389,6 +398,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
         const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
         if (!existingRequest) return response.status(404).json({ error: 'Anmodning ikke fundet.' });
+        
         if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
             return response.status(403).json({ error: 'Du har ikke rettigheder til at fuldføre denne anmodning.' });
         }
@@ -405,6 +415,25 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
         if (result.modifiedCount === 0) {
             return response.status(404).json({ error: 'Anmodning ikke fundet eller allerede fuldført.' });
         }
+
+        const helpRequest = await collection.findOne({ _id: new ObjectId(requestId) });
+
+        if (helpRequest.responder_id && helpRequest.responder_id.toString() !== helpRequest.user_id.toString()) {
+            const usersCollection = database.collection('users');
+            await usersCollection.updateOne(
+                { _id: new ObjectId(helpRequest.user_id) },
+                { $inc: { exp: 1 } }
+            );
+        }
+
+        if (helpRequest.responder_id) {
+            const usersCollection = database.collection('users');
+            await usersCollection.updateOne(
+                { _id: new ObjectId(helpRequest.responder_id) },
+                { $inc: { exp: 3 } }
+            );
+        }
+
         response.status(200).json({ message: 'Anmodning markeret som fuldført.' });
     } catch (error) {
         console.error('Error completing request:', error);

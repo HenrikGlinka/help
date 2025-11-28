@@ -31,14 +31,19 @@ const getAllRequests = async () => await fetchData('api/requests/all');
 const getOpenRequests = async (group) => await fetchData(`api/requests/${group?.toLowerCase()}/open`);
 const getOpenRequestsByUser = async () => await fetchData('api/requests/open');
 const getAllGroups = async () => await fetchData('api/groups/all');
-const getUserInfo = async () => await fetchData('api/users/me');
+
+const getUserInfo = async () => {
+    await refreshToken();
+
+    return await fetchData('api/users/me');
+}
 
 const postRequest = async (data) => await fetchData('api/requests', 'POST', data);
 const postRegister = async (data) => await fetchData('api/users/register', 'POST', data);
 const postLogin = async (data) => await fetchData('api/users/login', 'POST', data);
 
-const startRequest = async (id) => await fetchData(`api/requests/${id}/start`, 'PUT');
-const completeRequest = async (id) => await fetchData(`api/requests/${id}/complete`, 'PUT');
+const startRequest = async (ticketId) => await fetchData(`api/requests/${ticketId}/start`, 'PUT');
+const completeRequest = async (ticketId) => await fetchData(`api/requests/${ticketId}/complete`, 'PUT');
 
 const getInvites = async () => await fetchData('api/invites');
 const addInvite = async (data) => await fetchData('api/invites', 'POST', data);

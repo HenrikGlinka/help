@@ -1,17 +1,18 @@
 import { useRef, useState } from 'react';
 import Header from '../components/header';
 import { PiSpinner } from 'react-icons/pi';
-import { Alert, AlertTitle } from '@mui/material';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { postRequest } from '../helpers/api';
 import { useAlert } from '../contexts/alert-context';
 
 export default function LoginPage() {
 
+    const MAX_TITLE_LENGTH = 30;
     const MAX_DESCRIPTION_LENGTH = 200;
 
     const submitButton = useRef(null);
-    const [characterCount, setCharacterCount] = useState(0);
+    const [titleCharacterCount, setTitleCharacterCount] = useState(0);
+    const [descriptionCharacterCount, setDescriptionCharacterCount] = useState(0);
 
     const navigate = useNavigate();
 
@@ -66,14 +67,14 @@ export default function LoginPage() {
                 '>
                     <label>
                         <span>Overskrift</span>
-                        <input type="text" name="title" placeholder="Overskrift på dit spørgsmål" />
-                        
+                        <input type="text" onInput={event => setTitleCharacterCount(event.target.value.length)} maxLength={MAX_TITLE_LENGTH} name="title" placeholder="Overskrift på dit spørgsmål" />
+                        <span className='text-xs text-gray-500 text-right'>{titleCharacterCount} / {MAX_TITLE_LENGTH} tegn</span>
                     </label>
 
                     <label>
                         <span>Beskrivelse</span>
-                        <textarea onInput={event => setCharacterCount(event.target.value.length)} rows={10} maxLength={MAX_DESCRIPTION_LENGTH} name="description" placeholder="Beskriv dit problem"></textarea>
-                        <span className='text-xs text-gray-500 text-right'>{characterCount} / {MAX_DESCRIPTION_LENGTH} tegn</span>
+                        <textarea onInput={event => setDescriptionCharacterCount(event.target.value.length)} rows={10} maxLength={MAX_DESCRIPTION_LENGTH} name="description" placeholder="Beskriv dit problem"></textarea>
+                        <span className='text-xs text-gray-500 text-right'>{descriptionCharacterCount} / {MAX_DESCRIPTION_LENGTH} tegn</span>
                     </label>
                     <button className="approve" ref={submitButton} type="submit"><span>Stil spørgsmål</span><PiSpinner className='animate-spin hidden m-auto' size={20} /></button>
                     <Link to="/" className="button-like cancel">Tilbage</Link>

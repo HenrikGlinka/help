@@ -10,9 +10,9 @@ import Spinner from "../components/spinner";
 export default function AdminPage() {
 
     const user = useLogin();
-    
+
     if (!user.loading && user?.data?.role !== 'admin') user.logout();
-    
+
     const alert = useAlert();
 
     const [invites, setInvites] = useState([]);
@@ -72,45 +72,51 @@ export default function AdminPage() {
                     [&_button]:text-sm [&_button]:font-bold
                     [&[inert]_button_svg]:block [&[inert]_button_span]:hidden'
                 >
-                    <details name="admin">
-                        <summary><h3>Opret ny invitation</h3></summary>
-                    <label>
-                        <span>Rolle:</span>
-                        <select name="role" defaultValue="user" onChange={event => {
-                            if (event.target.value === 'admin') {
-                                if (!confirm('Er du helt sikker på, at du vil oprette en invitation med administrator-rettigheder?')) {
-                                    event.target.value = 'user';
+                    <details name="admin" className="group">
+                        <summary>
+                            <h3>Opret ny invitation</h3>
+                            <p className="text-2xl font-normal group-open:rotate-90 transition-transform ml-auto">›</p>
+                        </summary>
+                        <label>
+                            <span>Rolle:</span>
+                            <select name="role" defaultValue="user" onChange={event => {
+                                if (event.target.value === 'admin') {
+                                    if (!confirm('Er du helt sikker på, at du vil oprette en invitation med administrator-rettigheder?')) {
+                                        event.target.value = 'user';
+                                    }
                                 }
-                            }
-                        }}>
-                            <option value="user">Bruger</option>
-                            <option value="admin">Administrator</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span>Hold:</span>
-                        <select name="group">
-                            <option value="WU13">WU13</option>
-                            <option value="WU14">WU14</option>
-                            <option value="WU15">WU15</option>
-                            <option value="WU16">WU16</option>
-                            <option value="WU17">WU17</option>
-                            <option value="WU18">WU18</option>
-                            <option value="WU19">WU19</option>
-                            <option value="WU20">WU20</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span>Invitationsnøgle:</span>
-                        <input className="key" type="text" name="invite" placeholder="Indtast invitationsnøgle" />
-                    </label>
-                    <button type="submit" className="approve w-full">Opret invitation</button>
+                            }}>
+                                <option value="user">Bruger</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Hold:</span>
+                            <select name="group">
+                                <option value="WU13">WU13</option>
+                                <option value="WU14">WU14</option>
+                                <option value="WU15">WU15</option>
+                                <option value="WU16">WU16</option>
+                                <option value="WU17">WU17</option>
+                                <option value="WU18">WU18</option>
+                                <option value="WU19">WU19</option>
+                                <option value="WU20">WU20</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Invitationsnøgle:</span>
+                            <input className="key" type="text" name="invite" placeholder="Indtast invitationsnøgle" />
+                        </label>
+                        <button type="submit" className="approve w-full mt-4">Opret invitation</button>
                     </details>
                 </form>
 
                 <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black text-left mb-2 cursor-pointer">
-                    <details name="admin">
-                        <summary><h3>Eksisterende invitationer</h3></summary>
+                    <details name="admin" className="group">
+                        <summary>
+                            <h3>Eksisterende invitationer</h3>
+                            <p className="text-2xl font-normal group-open:rotate-90 transition-transform ml-auto">›</p>
+                        </summary>
                         {invites && invites.length > 0 ? (
                             <table className="
                             w-full text-sm
