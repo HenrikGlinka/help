@@ -27,7 +27,7 @@ export default function Header({ title }) {
             <h1 className="text-gray-700 dark:text-gray-200 mb-0 col-start-2">{title}</h1>
             {user.data?.username &&
                 <div className="text-xs text-right text-gray-500 w-fit justify-self-end grid grid-cols-[auto_1fr_auto] gap-0.5 items-center">
-                    <UserTag username={user.data.username} level={user.level} group={user.data.group} />
+                    <UserTag username={user.data.username} level={user.level} />
                     <ExperienceBar className="col-span-3" />
                 </div>
             }
