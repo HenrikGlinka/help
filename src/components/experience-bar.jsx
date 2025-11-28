@@ -8,7 +8,7 @@ export function ExperienceBar({ className = "" }) {
     return (
         <>
             <progress className={`
-            appearance-none !border-black dark:!border-white border-1 p-[1px] h-[8px] w-full block mb-1
+            appearance-none !border-black dark:!border-white border-1 p-[1px] h-[8px] w-full block
             [&::-webkit-progress-bar]:bg-white dark:[&::-webkit-progress-bar]:bg-black/10
             [&::-webkit-progress-value]:bg-black dark:[&::-webkit-progress-value]:bg-white
             [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 [&::-webkit-progress-value]:ease-out
@@ -17,6 +17,7 @@ export function ExperienceBar({ className = "" }) {
             bg-transparent ${className}
             `}
                 value={user.exp - user.expToPrevious} max={user.exp - user.expToPrevious + user.expToNext} />
+                <p className={`m-0 text-[.5rem] text-black dark:text-white ${className}`}>{user.exp - user.expToPrevious} / {user.expToNext}</p>
         </>
 
     );

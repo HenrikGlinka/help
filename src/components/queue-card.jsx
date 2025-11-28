@@ -1,13 +1,10 @@
 import { GoDiscussionClosed } from "react-icons/go";
 import { formatDate } from "../utilities/format-date";
-import { HiOutlineChatBubbleOvalLeftEllipsis } from "react-icons/hi2";
 import { completeRequest, startRequest } from "../helpers/api";
 import { useRef } from "react";
 import CompleteSound from "../assets/audio/sounds/fanfare.mp3";
 import { PiHandshakeLight, PiSpinner } from "react-icons/pi";
 import { useLogin } from "../contexts/login-context";
-import { GroupBadge } from "./group-badge";
-import LevelBadge from "./level-badge";
 import UserTag from "./user-tag";
 import { getLevel } from "../helpers/leveling";
 
@@ -21,7 +18,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
     const startButton = useRef(null);
     const completeButton = useRef(null);
 
-    async function startRequestHandler(ticketId, userId) {
+    async function startRequestHandler(ticketId) {
         startButton.current.disabled = true;
 
         const response = await startRequest(ticketId);
@@ -62,18 +59,18 @@ export default function QueueCard({ ticket, onUpdate = null }) {
         <div className="bg-white border rounded-2xl p-4 grid-cols-[1fr_auto_auto] grid mb-1 dark:bg-black">
             <details className="col-span-3 mb-2 group" name="ticket-details">
                 <summary className="flex justify-between gap-1 items-center">
-                    <p className="">{ticket.title}</p>
-                    <p className="text-2xl font-normal group-open:rotate-90 mr-auto transition-transform">›</p>
+                    <p className="truncate min-w-0">{ticket.title}</p>
+                    <p className="text-2xl font-normal group-open:rotate-90 mr-auto transition-transform min-w-fit">›</p>
                     <p className={`${statusColor} text-white self-start px-3 py-1 shrink-0 text-xs flex items-center font-bold rounded-lg min-w-18 justify-center uppercase`}>
                         {status}
                     </p>
                 </summary>
-                <p className="text-sm text-gray-600 my-1">{ticket.description}</p>
+                <p className="text-sm text-gray-500 my-1 truncate min-w-0">{ticket.description}</p>
             </details>
 
-            <p className="[&:first-letter]:uppercase">
+            <p className="[&:first-letter]:uppercase min-w-0">
                 <UserTag username={ticket.owner} level={getLevel(ticket.owner_exp)} group={ticket.group} /></p>
-            <p className="col-span-2 text-sm self-center">{formatDate(ticket.creation_date, 'kl. HH:mm')}</p>
+            <p className="col-span-2 text-sm self-center whitespace-nowrap ml-1">{formatDate(ticket.creation_date, 'kl. HH:mm')}</p>
 
             {(!ticket.response_date || ticket.isOwner || ticket.isAdmin) &&
                 <>
