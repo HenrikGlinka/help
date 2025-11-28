@@ -101,7 +101,7 @@ router.post('/users/login', async (request, response) => {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
-                exp: userData.exp || 0,
+                exp: userData?.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
@@ -122,7 +122,7 @@ router.get('/users/me', async (request, response) => {
 });
 
 router.get('/users/me/refresh', authenticationMiddleware, async (request, response) => {
-try {
+    try {
 
         const token = request.headers.authorization?.split(' ')[1];
         const { user } = jwt.verify(token, process.env.JWT_SECRET);
@@ -131,7 +131,7 @@ try {
         const collection = database.collection('users');
 
         const userData = await collection.findOne({ username: user.username.toLowerCase() });
-        
+
         if (!userData) {
             return response.status(401).json({ error: 'Ugyldig bruger.' });
         }
@@ -142,6 +142,7 @@ try {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
+                exp: userData?.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
@@ -304,6 +305,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
                 user_id: userId,
                 creation_date: new Date(),
                 owner: request.user.username,
+                owner_exp: request.user.exp || 0,
             };
 
             if (request.user.group) newRequest.group = request.user.group.toLowerCase();
@@ -337,21 +339,34 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
     const requestId = request.params.id;
 
     console.log(request.user);
-    
+
 
     if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
     else if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
-    else if (request.user.role !== "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
     else try {
 
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
+
+        // Check if the user offering help is already assigned to another open request
+        const existingAssignment = await collection.findOne({
+            responder_id: new ObjectId(request.user.id),
+            completion_date: { $exists: false }
+        });
+
+        if (existingAssignment) {
+            return response.status(400).json({ error: 'Du kan kun hjælpe én person ad gangen.' });
+        }
 
         const result = await collection.updateOne(
             { _id: new ObjectId(requestId) },
             {
                 $set: {
                     response_date: new Date(),
+                    responder_id: new ObjectId(request.user.id),
+                    responder_name: request.user.username,
+                    responder_group: request.user.group,
+                    responder_exp: request.user.exp || 0,
                 }
             }
         );
@@ -383,6 +398,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
         const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
         if (!existingRequest) return response.status(404).json({ error: 'Anmodning ikke fundet.' });
+        
         if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
             return response.status(403).json({ error: 'Du har ikke rettigheder til at fuldføre denne anmodning.' });
         }
@@ -400,12 +416,21 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
             return response.status(404).json({ error: 'Anmodning ikke fundet eller allerede fuldført.' });
         }
 
-        // Award 1 exp point to the user if completed by an admin
-        if (request.user.role === 'admin') {
+        const helpRequest = await collection.findOne({ _id: new ObjectId(requestId) });
+
+        if (helpRequest.responder_id && helpRequest.responder_id.toString() !== helpRequest.user_id.toString()) {
             const usersCollection = database.collection('users');
             await usersCollection.updateOne(
-                { _id: existingRequest.user_id },
-                { $inc: { exp: 1 } } 
+                { _id: new ObjectId(helpRequest.user_id) },
+                { $inc: { exp: 1 } }
+            );
+        }
+
+        if (helpRequest.responder_id) {
+            const usersCollection = database.collection('users');
+            await usersCollection.updateOne(
+                { _id: new ObjectId(helpRequest.responder_id) },
+                { $inc: { exp: 3 } }
             );
         }
 

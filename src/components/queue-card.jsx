@@ -6,6 +6,10 @@ import { useRef } from "react";
 import CompleteSound from "../assets/audio/sounds/fanfare.mp3";
 import { PiHandshakeLight, PiSpinner } from "react-icons/pi";
 import { useLogin } from "../contexts/login-context";
+import { GroupBadge } from "./group-badge";
+import LevelBadge from "./level-badge";
+import UserTag from "./user-tag";
+import { getLevel } from "../helpers/leveling";
 
 export default function QueueCard({ ticket, onUpdate = null }) {
 
@@ -42,6 +46,7 @@ export default function QueueCard({ ticket, onUpdate = null }) {
             console.error("Failed to complete request");
             completeButton.current.disabled = false;
         } else {
+            user.update();
             if (localStorage.getItem('sound') !== null) {
                 const completeSound = new Audio(CompleteSound);
                 completeSound.play();
@@ -66,7 +71,8 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                 <p className="text-sm text-gray-600 my-1">{ticket.description}</p>
             </details>
 
-            <p className="[&:first-letter]:uppercase truncate max-w-[10ch]">{ticket.owner} <span className="text-xs font-bold text-white bg-gray-500 p-[.05rem_.2rem] rounded-xs">{ticket?.group?.toUpperCase()}</span></p>
+            <p className="[&:first-letter]:uppercase">
+                <UserTag username={ticket.owner} level={getLevel(ticket.owner_exp)} group={ticket.group} /></p>
             <p className="col-span-2 text-sm self-center">{formatDate(ticket.creation_date, 'kl. HH:mm')}</p>
 
             {(!ticket.response_date || ticket.isOwner || ticket.isAdmin) &&

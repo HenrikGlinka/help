@@ -2,7 +2,7 @@ const EXP_TO_FIRST_LEVEL = 10;
 const GROWTH_RATE = 1.2;
 
 export function getLevel(exp) {
-    if (exp < EXP_TO_FIRST_LEVEL) return 1;
+    if (isNaN(exp) || exp < EXP_TO_FIRST_LEVEL) return 1;
 
     return Math.floor(
         Math.log(1 + (exp * (GROWTH_RATE - 1)) / EXP_TO_FIRST_LEVEL) / Math.log(GROWTH_RATE)
