@@ -7,6 +7,9 @@ import { subscribeToNotifications, unsubscribeFromNotifications } from "../utili
 import { changeUserGroup, getAllGroups } from "../helpers/api";
 import { useLogin } from "../contexts/login-context";
 import { useAlert } from "../contexts/alert-context";
+import capitalizeFirstLetters from "../utilities/capitalize-first-letters";
+import { CiLock } from "react-icons/ci";
+import { SlLock } from "react-icons/sl";
 
 const groupsPromise = getAllGroups();
 
@@ -117,6 +120,29 @@ export default function Settings() {
                         </label>
                     </li>
                     <li>
+                        <details name="settings" className="group [&_label_span]:text-xs">
+                            <summary>
+                                <p className="font-normal">Skift adgangskode</p>
+                                <p className="text-2xl font-normal group-open:rotate-90 transition-transform ml-auto">›</p>
+                            </summary>
+                            <form>
+                                <label>
+                                    <span>Nuværende adgangskode</span>
+                                    <input type="password" placeholder="Indtast din nuværende adgangskode" />
+                                </label>
+                                <label>
+                                    <span>Ny adgangskode</span>
+                                    <input type="password" placeholder="Indtast din nye adgangskode" />
+                                </label>
+                                <label>
+                                    <span>Bekræft ny adgangskode</span>
+                                    <input type="password" placeholder="Bekræft din nye adgangskode" />
+                                </label>
+                                <button className="approve w-full mt-2 relative"><SlLock className="mr-5 absolute left-4" size={20} />Skift adgangskode</button>
+                            </form>
+                        </details>
+                    </li>
+                    <li>
                         <label>
                             <button onClick={() => {
                                 localStorage.removeItem('coin-offer');
@@ -127,7 +153,7 @@ export default function Settings() {
                         </label>
                     </li>
                 </ul>
-                <Link className="button-like mt-auto" to={-1}><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
+                <Link className="button-like mt-auto relative" to={-1}><MdArrowBack className="mr-5 absolute left-4" size={20} />Tilbage</Link>
             </main>
         </>
     )
