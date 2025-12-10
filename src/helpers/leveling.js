@@ -11,7 +11,9 @@ export function getLevel(exp) {
 
 export function getExpToPreviousLevel(exp) {
     const level = getLevel(exp);
+
     if (level === 1) return 0;
+
     return Math.floor(
         EXP_TO_FIRST_LEVEL * (Math.pow(GROWTH_RATE, level - 1) - 1) / (GROWTH_RATE - 1)
     );

@@ -1,12 +1,19 @@
-# React + Vite
+# Henrik.help
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Henrik.help er en platform designet til at lette kommunikationen og samarbejdet mellem elever og lærere. Det giver eleverne mulighed for at indsende anmodninger om hjælp, mens lærere kan administrere og besvare disse anmodninger effektivt.
 
-Currently, two official plugins are available:
+## Funktioner
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Elevfunktioner:**
+  - Indsend anmodninger om hjælp.
+  - Se status for deres anmodninger.
+  - Modtag notifikationer, når deres anmodninger er besvaret.
 
-## Expanding the ESLint configuration
+- **Lærerfunktioner:**
+  - Se og administrer alle indsendte anmodninger.
+  - Besvar anmodninger og kommuniker direkte med elever.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Administratorfunktioner:**
+  - Administrer brugere og deres roller.
+  - Overvåg platformens ydeevne og brug.
+
