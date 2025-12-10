@@ -17,7 +17,7 @@ export function ExperienceBar({ className = "" }) {
             bg-transparent ${className}
             `}
                 value={user.exp - user.expToPrevious} max={user.exp - user.expToPrevious + user.expToNext} />
-                <p className={`m-0 text-[.5rem] text-black dark:text-white ${className}`}>{user.exp - user.expToPrevious} / {user.expToNext}</p>
+                <p className={`m-0 text-[.5rem] text-black dark:text-white ${className}`}>{user.exp - user.expToPrevious} / {user.expToNext + user.exp - user.expToPrevious}</p>
         </>
 
     );
