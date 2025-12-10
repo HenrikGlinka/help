@@ -11,6 +11,7 @@ import { getLevel } from "../helpers/leveling";
 import LevelBadge from "./level-badge";
 import { GroupBadge } from "./group-badge";
 import UserTag from "./user-tag";
+import { GoTrophy } from "react-icons/go";
 
 export default function Header({ title }) {
 
@@ -20,6 +21,7 @@ export default function Header({ title }) {
         <header className="text-center px-2 py-3 bg-white dark:bg-black grid grid-cols-[1fr_auto_1fr] items-center gap-1 border-b-1">
             {user.data?.username && <BurgerMenu>
                 <Link className="button-like w-full relative" to="/"><BsHouse className="mr-5 absolute left-4" size={20} />Hjem</Link>
+                <Link className="button-like w-full relative" to="/leaderboard"><span className="mr-5 absolute left-4"><GoTrophy size={20} /></span>Top 10</Link>
                 <Link className="button-like w-full relative" to="/settings"><IoSettingsOutline className="mr-5 absolute left-4" size={20} />Indstillinger</Link>
                 {user.data?.role === 'admin' && <Link className="button-like w-full relative" to="/admin"><MdOutlineAdminPanelSettings className="mr-5 absolute left-4" size={20} />Admin</Link>}
                 <button onClick={user.logout} className="cancel w-full relative"><SlLogout className="mr-5 absolute left-4" size={20} />Log ud</button>

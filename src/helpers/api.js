@@ -62,12 +62,15 @@ const refreshToken = async () => {
     else localStorage.removeItem('token');
 };
 
+const getLeaderboard = async () => await fetchData('api/leaderboard');
+
 export {
     getAllRequests,
     getOpenRequests,
     getOpenRequestsByUser,
     getAllGroups,
     getUserInfo,
+    getLeaderboard,
     postRequest,
     postRegister,
     postLogin,
