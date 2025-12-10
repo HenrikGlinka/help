@@ -573,3 +573,18 @@ router.delete('/invites/:id', authenticationMiddleware, async (request, response
         response.status(500).json({ error: 'Intern serverfejl' });
     }
 });
+
+router.get('/leaderboard', authenticationMiddleware, async (request, response) => {
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const leaderboard = await collection.find({}, { projection: { username: 1, exp: 1, group: 1 } })
+            .sort({ exp: -1 })
+            .limit(10)
+            .toArray();
+        response.json(leaderboard);
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});

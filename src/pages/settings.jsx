@@ -127,7 +127,7 @@ export default function Settings() {
                         </label>
                     </li>
                 </ul>
-                <Link className="button-like mt-auto" to="/"><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
+                <Link className="button-like mt-auto" to={-1}><MdArrowBack className="mr-1" size={20} />Tilbage</Link>
             </main>
         </>
     )
