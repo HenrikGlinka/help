@@ -56,6 +56,8 @@ const changeUserGroup = async (userId, group) => {
     refreshToken();
 };
 
+const changePassword = async (data) => await fetchData('api/users/me/password', 'PUT', data);
+
 const refreshToken = async () => {
     const { token } = await fetchData('api/users/me/refresh', 'GET');
     if (token) localStorage.setItem('token', token);
@@ -80,5 +82,6 @@ export {
     addInvite,
     deleteInvite,
     changeUserGroup,
+    changePassword,
     refreshToken,
 };

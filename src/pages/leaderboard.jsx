@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Header from "../components/header";
 import { getLeaderboard } from "../helpers/api";
 import { getLevel } from "../helpers/leveling";
-import capitalizeFirstLetters from "../utilities/capitalize-first-letters";
 import UserTag from "../components/user-tag";
 import { Link } from "react-router";
 import { MdArrowBack } from "react-icons/md";

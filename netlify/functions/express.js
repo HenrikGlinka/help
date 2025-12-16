@@ -153,6 +153,36 @@ router.get('/users/me/refresh', authenticationMiddleware, async (request, respon
     }
 });
 
+router.put('/users/me/password', authenticationMiddleware, async (request, response) => {
+    request.on('data', async data => {
+        const { currentPassword, newPassword } = JSON.parse(data.toString());
+
+        if (!currentPassword) {
+            return response.status(400).json({ error: 'Nuværende og ny adgangskode er påkrævet.' });
+        }
+
+        if (!newPassword) {
+            return response.status(400).json({ error: 'Ny adgangskode er påkrævet.' });
+        }
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const userData = await collection.findOne({ _id: new ObjectId(request.user.id) });
+
+        const isValidPassword = await bcrypt.compare(currentPassword, userData.password_hash);
+
+        if (!isValidPassword) {
+            return response.status(401).json({ error: 'Nuværende adgangskode er forkert.' });
+        }
+
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+        await collection.updateOne({ _id: new ObjectId(request.user.id) }, { $set: { password_hash: newPasswordHash } });
+
+        response.json({ success: 'Adgangskoden er blevet opdateret.' });
+    });
+
+});
+
 router.put('/users/:id/group', authenticationMiddleware, async (request, response) => {
     const userId = request.params.id;
     if (request.user.role !== 'admin') {
@@ -398,7 +428,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
         const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
         if (!existingRequest) return response.status(404).json({ error: 'Anmodning ikke fundet.' });
-        
+
         if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
             return response.status(403).json({ error: 'Du har ikke rettigheder til at fuldføre denne anmodning.' });
         }
