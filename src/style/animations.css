@@ -5,6 +5,7 @@
 
         --animate-fade-in: .3s ease-out fade-in forwards;
         --animate-fade-out: .3s ease-in fade-out forwards;
+        --animate-loading: 3s linear infinite loading;
     }
 
     @keyframes popup-bottom {
@@ -66,5 +67,19 @@
 
         100% {
             opacity: 0;
+        }
+    }
+
+    @keyframes loading {
+        0% {
+            background-image: linear-gradient(270deg, transparent, #aaa, transparent);
+            background-size: 400% 400%;
+            background-position: 0% 50%;
+        }
+
+        100% {
+            background-image: linear-gradient(270deg, transparent, #aaa, transparent);
+            background-size: 400% 400%;
+            background-position: -400% 50%;
         }
     }

@@ -144,7 +144,7 @@ export default function AdminPage() {
                                 </tbody>
                             </table>
                         ) : (
-                            <p>Ingen eksisterende invitationer.</p>
+                            <p className="text-center italic">Ingen eksisterende invitationer.</p>
                         )}
                     </details>
                 </section>
