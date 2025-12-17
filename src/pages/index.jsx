@@ -18,7 +18,7 @@ export default function IndexPage() {
     const user = useLogin();
     const alert = useAlert();
 
-    let updateInterval = null;
+    const updateInterval = useRef(null); // changed: useRef for interval
 
 
 
@@ -53,7 +53,7 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        clearInterval(updateInterval);
+        clearInterval(updateInterval.current);
 
         if (user.isLoading) return console.log('User data is still loading...');
 
@@ -62,14 +62,14 @@ export default function IndexPage() {
             if (localStorage.getItem('token') === null || !await user.tokenIsValid()) {
                 user.logout();
             } else {
-                updateInterval = setInterval(updateTickets, 10000);
+                updateInterval.current = setInterval(updateTickets, 10000);
                 updateTickets();
             }
         }
 
         checkAuthAndUpdate();
 
-        return () => clearInterval(updateInterval);
+        return () => clearInterval(updateInterval.current);
 
     }, [user.isLoading]);
 
