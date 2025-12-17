@@ -38,6 +38,8 @@ const getUserInfo = async () => {
     return await fetchData('api/users/me');
 }
 
+const getUserProfile = async (id) => await fetchData(`api/users/${id}/profile`);
+
 const postRequest = async (data) => await fetchData('api/requests', 'POST', data);
 const postRegister = async (data) => await fetchData('api/users/register', 'POST', data);
 const postLogin = async (data) => await fetchData('api/users/login', 'POST', data);
@@ -72,6 +74,7 @@ export {
     getOpenRequestsByUser,
     getAllGroups,
     getUserInfo,
+    getUserProfile,
     getLeaderboard,
     postRequest,
     postRegister,

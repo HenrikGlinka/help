@@ -183,6 +183,59 @@ router.put('/users/me/password', authenticationMiddleware, async (request, respo
 
 });
 
+router.get('/users/:id/profile', authenticationMiddleware, async (request, response) => {
+    try {
+        const database = client.db(DB_NAME);
+        const users = database.collection('users');
+        const userId = new ObjectId(request.params.id);
+
+        const pipeline = [
+            { $match: { _id: userId } },
+            { $project: { password_hash: 0 } },
+            {
+                $lookup: {
+                    from: 'requests',
+                    let: { uid: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ['$user_id', '$$uid'] } } },
+                        { $count: 'count' }
+                    ],
+                    as: 'questions'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'requests',
+                    let: { uid: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $and: [ { $eq: ['$responder_id', '$$uid'] }, { $ne: ['$completion_date', null] } ] } } },
+                        { $count: 'count' }
+                    ],
+                    as: 'answers'
+                }
+            },
+            {
+                $addFields: {
+                    questions_asked: { $ifNull: [ { $arrayElemAt: ['$questions.count', 0] }, 0 ] },
+                    answers_given: { $ifNull: [ { $arrayElemAt: ['$answers.count', 0] }, 0 ] }
+                }
+            },
+            { $project: { questions: 0, answers: 0 } }
+        ];
+
+        const [userData] = await users.aggregate(pipeline).toArray();
+
+        if (!userData) {
+            return response.status(404).json({ error: 'Bruger ikke fundet.' });
+        }
+
+        response.json({ user: userData });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
 router.put('/users/:id/group', authenticationMiddleware, async (request, response) => {
     const userId = request.params.id;
     if (request.user.role !== 'admin') {
@@ -259,7 +312,6 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
 
 router.get('/requests/:group/open', authenticationMiddleware, async (request, response) => {
     try {
-
         const group = request.params.group;
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
@@ -275,8 +327,6 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
         console.log(`Found ${requests.length} requests for group "${group}"`);
         console.log(query);
 
-
-
         requests.forEach(result => {
             result.isOwner = result.user_id.toString() === request.user.id;
             result.isAdmin = request.user.role === 'admin';
@@ -286,9 +336,7 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
     } catch (error) {
         console.error('Error fetching open requests:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
-    } finally {
-
-    }
+    } 
 });
 
 router.get('/groups/all', authenticationMiddleware, async (request, response) => {
@@ -608,7 +656,7 @@ router.get('/leaderboard', authenticationMiddleware, async (request, response) =
     try {
         const database = client.db(DB_NAME);
         const collection = database.collection('users');
-        const leaderboard = await collection.find({}, { projection: { username: 1, exp: 1, group: 1 } })
+        const leaderboard = await collection.find({}, { projection: { _id: 1, username: 1, exp: 1, group: 1 } })
             .sort({ exp: -1 })
             .limit(10)
             .toArray();
