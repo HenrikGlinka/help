@@ -27,7 +27,7 @@ export default function BurgerMenu({ children }) {
                 <>
                     <nav ref={nav} className={`
                         animate-[var(--animate-slide-in-left)]
-                        top-1 left-1 p-2 bg-white dark:bg-black border-1 rounded shadow-lg z-10 fixed
+                        top-1 left-1 p-2 pb-4 bg-white dark:bg-black border-1 rounded shadow-lg z-10 fixed
                         w-[calc(100%-.5rem)] max-w-3xs
                     `}>
                         <ul className="flex flex-col gap-2 z-50">
