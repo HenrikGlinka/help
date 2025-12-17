@@ -63,7 +63,7 @@ export default function AdminPage() {
     return (
         <>
             <Header title="Henrik.help"></Header>
-            <main>
+            <main className="flex flex-col gap-6">
                 <h2>Administrator panel</h2>
 
                 <form onSubmit={handleAddInvite} method="post" className='
