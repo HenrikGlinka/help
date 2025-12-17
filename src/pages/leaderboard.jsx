@@ -35,7 +35,7 @@ export default function Leaderboard() {
                         {leaderboardData ? leaderboardData.map((user, index) => (
                             <tr key={index}>
                                 <td className="text-center">{index + 1}</td>
-                                <td className="px-4">{<UserTag username={user.username} level={getLevel(user.exp)} group={user.group} shorten />}</td>
+                                <td className="px-4"><Link to={`/profile/${user._id}`}><UserTag username={user.username} level={getLevel(user.exp)} group={user.group} shorten /></Link></td>
                                 <td colSpan={2} className="text-right !font-mono w-0">{user.exp}</td>
                             </tr>
                         )) : Array.from({ length: 10 }).map((_, index) => (
