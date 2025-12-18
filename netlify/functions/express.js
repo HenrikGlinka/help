@@ -7,6 +7,8 @@ import authenticationMiddleware from './authentication.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendNotification } from "./notifications.js";
+import { randomSentence } from "./randomSentence.js";
+import { capitalize } from "@mui/material";
 
 dotenv.config();
 
@@ -30,6 +32,25 @@ app.use(express.json());
 app.use("/api/", router);
 
 export const handler = serverless(app);
+
+router.get('/users',authenticationMiddleware, async (request, response) => {
+
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    const { q } = request.query;
+
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const query = q ? { username: { $regex: q, $options: 'i' } } : [];
+        const users = await collection.find(query, {projection: {_id: 1, username: 1, role: 1, group: 1}}).limit(10).toArray();
+        response.json(users);
+    } catch (error) {
+        response.status(500).json({ error: error.message });
+    }
+});
 
 router.post('/users/register', async (request, response) => {
 
@@ -183,6 +204,43 @@ router.put('/users/me/password', authenticationMiddleware, async (request, respo
 
 });
 
+router.post('/users/:id/password/reset', authenticationMiddleware, async (request, response) => {
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    const userId = request.params.id;
+    
+    try {
+        const database = client.db(DB_NAME);
+
+        const collection = database.collection('users');
+
+        const userIsAdmin = await collection.findOne({ _id: new ObjectId(userId), role: 'admin' });
+
+        if (userIsAdmin) {
+            return response.status(403).json({ error: 'Adgangskoden for admin-brugere kan ikke nulstilles via denne metode.' });
+        }
+
+        const newPasswordOptions = { minLength: 5, maxLength: 8, separator: '', capitalize: true };
+        const randomNumber = Math.floor(Math.random() * 9999 + 1).toString().padStart(4, '0');
+        const randomPassword = randomSentence(3, newPasswordOptions) + randomNumber;
+        
+        const newPasswordHash = await bcrypt.hash(randomPassword, 10);
+
+        const result = await collection.updateOne({ _id: new ObjectId(userId) }, { $set: { password_hash: newPasswordHash } });
+       
+        if (result.modifiedCount === 0) {
+            return response.status(404).json({ error: 'Bruger ikke fundet.' });
+        }
+
+        response.json({ message: 'Adgangskoden er blevet nulstillet.', password: randomPassword });
+    } catch (error) {
+        console.error('Error resetting user password:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
 router.get('/users/:id/profile', authenticationMiddleware, async (request, response) => {
     try {
         const database = client.db(DB_NAME);
@@ -208,7 +266,7 @@ router.get('/users/:id/profile', authenticationMiddleware, async (request, respo
                     from: 'requests',
                     let: { uid: '$_id' },
                     pipeline: [
-                        { $match: { $expr: { $and: [ { $eq: ['$responder_id', '$$uid'] }, { $ne: ['$completion_date', null] } ] } } },
+                        { $match: { $expr: { $and: [{ $eq: ['$responder_id', '$$uid'] }, { $ne: ['$completion_date', null] }] } } },
                         { $count: 'count' }
                     ],
                     as: 'answers'
@@ -216,8 +274,8 @@ router.get('/users/:id/profile', authenticationMiddleware, async (request, respo
             },
             {
                 $addFields: {
-                    questions_asked: { $ifNull: [ { $arrayElemAt: ['$questions.count', 0] }, 0 ] },
-                    answers_given: { $ifNull: [ { $arrayElemAt: ['$answers.count', 0] }, 0 ] }
+                    questions_asked: { $ifNull: [{ $arrayElemAt: ['$questions.count', 0] }, 0] },
+                    answers_given: { $ifNull: [{ $arrayElemAt: ['$answers.count', 0] }, 0] }
                 }
             },
             { $project: { questions: 0, answers: 0 } }
@@ -336,7 +394,7 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
     } catch (error) {
         console.error('Error fetching open requests:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
-    } 
+    }
 });
 
 router.get('/groups/all', authenticationMiddleware, async (request, response) => {

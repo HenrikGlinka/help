@@ -5,12 +5,18 @@ const wordList = wordData.map(line => {
     const [corId, lemma, gloss, designation, form, standardizedForm] = line.split('\t');
 
     if (corId && lemma && gloss && designation && form && standardizedForm) {
-        return {corId, lemma, gloss, designation, form, standardizedForm};
+        return { corId, lemma, gloss, designation, form, standardizedForm };
     }
 });
 
 export function randomSentence(wordCount, options = {}) {
-    const { minLength = 0, maxLength = Infinity, designation = undefined } = options;
+    const {
+        minLength = 0,
+        maxLength = Infinity,
+        designation = undefined,
+        separator = ' ',
+        capitalize = false
+    } = options;
 
     const randomWords = wordList.filter(
         word => word?.lemma?.length >= minLength && word?.lemma?.length <= maxLength && (designation === undefined || word?.designation === designation));
@@ -18,9 +24,14 @@ export function randomSentence(wordCount, options = {}) {
     let sentence = [];
     for (let i = 0; i < wordCount; i++) {
         const randomIndex = Math.floor(Math.random() * randomWords.length);
-        const randomWord = randomWords[randomIndex].lemma;
+        let randomWord = randomWords[randomIndex].lemma;
+        
+        if (capitalize) {
+            randomWord = randomWord.charAt(0).toUpperCase() + randomWord.slice(1);
+        }
+
         sentence.push(randomWord);
     }
 
-    return sentence.join(' ');
+    return sentence.join(separator);
 }
