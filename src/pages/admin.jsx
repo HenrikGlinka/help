@@ -1,11 +1,15 @@
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Header from "../components/header";
-import { addInvite, deleteInvite, getInvites, getUserInfo } from "../helpers/api";
+import { addInvite, deleteInvite, findUsers, getInvites, getUserInfo, resetUserPassword } from "../helpers/api";
 import { Link } from "react-router";
 import { BsTrash3 } from "react-icons/bs";
 import { useLogin } from "../contexts/login-context";
 import { useAlert } from "../contexts/alert-context";
 import Spinner from "../components/spinner";
+import { RiUserSearchLine } from "react-icons/ri";
+import capitalizeFirstLetters from "../utilities/capitalize-first-letters";
+import UserTag from "../components/user-tag";
+import { HiOutlineClipboardCopy } from "react-icons/hi";
 
 export default function AdminPage() {
 
@@ -17,7 +21,14 @@ export default function AdminPage() {
 
     const [invites, setInvites] = useState([]);
 
+    const [foundUsers, setFoundUsers] = useState([]);
+
+    const [resetPassword, setResetPassword] = useState(null);
+
+    const userSearchInput = useRef(null);
+
     useEffect(() => { getInvites().then(data => setInvites(data)); }, []);
+
 
     const handleAddInvite = async (event) => {
         event.preventDefault();
@@ -44,6 +55,31 @@ export default function AdminPage() {
                 alert.success('Invitationen blev slettet succesfuldt.');
             } else {
                 alert.error('Der opstod en fejl under sletningen af invitationen.');
+            }
+        }
+    };
+
+    const handleUserSearch = async (event) => {
+        const query = event.target.value;
+        if (query.length >= 3) {
+            findUsers(query).then(data => setFoundUsers(data.filter(user => user.role !== 'admin')));
+        } else {
+            setFoundUsers([]);
+        }
+    };
+
+    const handleResetPassword = async (username, id) => {
+        if (confirm('Er du sikker på, at du vil nulstille denne brugers adgangskode?')) {
+            const result = await resetUserPassword(id);
+            if (result) {
+                alert.success('Adgangskoden er nu nulstillet.');
+                userSearchInput.current.value = '';
+                setResetPassword({ username, password: result.password });
+                setFoundUsers([]);
+                console.log(result);
+
+            } else {
+                alert.error('Der opstod en fejl under nulstillingen af adgangskoden.');
             }
         }
     };
@@ -111,7 +147,7 @@ export default function AdminPage() {
                     </details>
                 </form>
 
-                <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black text-left mb-2 cursor-pointer">
+                <section className="flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black text-left cursor-pointer">
                     <details name="admin" className="group">
                         <summary>
                             <h3>Eksisterende invitationer</h3>
@@ -146,6 +182,53 @@ export default function AdminPage() {
                         ) : (
                             <p className="text-center italic">Ingen eksisterende invitationer.</p>
                         )}
+                    </details>
+                </section>
+
+                <section className='
+                flex flex-col gap-4 border rounded-2xl p-4 bg-white dark:bg-black
+                    [&_label]:flex [&_label]:flex-col
+                    [&_button]:text-sm [&_button]:font-bold
+                    [&[inert]_button_svg]:block [&[inert]_button_span]:hidden'
+                >
+                    <details name="admin" className="group">
+                        <summary>
+                            <h3>Nulstil adgangskoder</h3>
+                            <p className="text-2xl font-normal group-open:rotate-90 transition-transform ml-auto">›</p>
+                        </summary>
+                        <label className="!grid grid-cols-[auto_1fr] content-center items-center">
+                            <span className="col-span-2">Find bruger:</span>
+                            <RiUserSearchLine />
+                            <input ref={userSearchInput} onInput={handleUserSearch} type="search" placeholder="Skriv et brugernavn" />
+                            {foundUsers.length > 0 && <table className="
+                            w-full text-sm mt-4
+                            [&>tbody>tr>td]:p-2 text-center col-span-2
+                            [&>tbody>tr]:nth-[odd]:bg-gray-200 dark:[&>tbody>tr]:nth-[odd]:bg-gray-800
+                            [&>tbody>tr>td]:first:text-left [&>thead>tr>th]:first:text-left [&>thead>tr>th]:last:text-right [&>thead>tr>th]:px-2
+                            ">
+                                <tbody>
+                                    {foundUsers.map(user => (
+                                        <tr key={user._id}>
+                                            <td className="whitespace-nowrap"><UserTag username={user.username} group={user.group} /></td>
+                                            <td><button className="cancel h-7 ml-auto" onClick={() => handleResetPassword(user.username, user._id)}>Nulstil</button></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            }
+
+                            {resetPassword !== null && <div className="mt-4 col-span-2 grid grid-cols-[1fr_auto] gap-y-2">
+                                <h4 className="col-span-2">Ny adgangskode for <i>{resetPassword.username}</i>:</h4>
+                                <output className="key p-2 block bg-gray-800 text-white rounded-l-xl text-sm w-full">{resetPassword.password}</output>
+                                <button className=" w-10 !px-0 !rounded-l-none !rounded-r-xl" onClick={() => {
+                                    navigator.clipboard.writeText(resetPassword.password);
+                                    alert.info('Adgangskoden er kopieret til udklipsholderen.');
+                                }}>
+                                    <HiOutlineClipboardCopy size={20} />
+                                </button>
+                            </div>}
+
+                        </label>
                     </details>
                 </section>
 

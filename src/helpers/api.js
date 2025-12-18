@@ -32,6 +32,8 @@ const getOpenRequests = async (group) => await fetchData(`api/requests/${group?.
 const getOpenRequestsByUser = async () => await fetchData('api/requests/open');
 const getAllGroups = async () => await fetchData('api/groups/all');
 
+const findUsers = async (query) => await fetchData(`api/users?q=${encodeURIComponent(query)}`);
+
 const getUserInfo = async () => {
     await refreshToken();
 
@@ -60,6 +62,8 @@ const changeUserGroup = async (userId, group) => {
 
 const changePassword = async (data) => await fetchData('api/users/me/password', 'PUT', data);
 
+const resetUserPassword = async (id) => await fetchData(`api/users/${id}/password/reset`, 'POST');
+
 const refreshToken = async () => {
     const { token } = await fetchData('api/users/me/refresh', 'GET');
     if (token) localStorage.setItem('token', token);
@@ -73,6 +77,7 @@ export {
     getOpenRequests,
     getOpenRequestsByUser,
     getAllGroups,
+    findUsers,
     getUserInfo,
     getUserProfile,
     getLeaderboard,
@@ -86,5 +91,6 @@ export {
     deleteInvite,
     changeUserGroup,
     changePassword,
+    resetUserPassword,
     refreshToken,
 };
