@@ -1,12 +1,6 @@
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dataPath = path.join(__dirname, 'data', 'cor1.5.1.0.tsv');
-
-const wordData = fs.readFileSync(dataPath, 'utf-8').split('\n');
+const wordData = fs.readFileSync('./netlify/functions/data/cor1.5.1.0.tsv', 'utf-8').split('\n');
 const wordList = wordData.map(line => {
     const [corId, lemma, gloss, designation, form, standardizedForm] = line.split('\t');
 
@@ -31,7 +25,7 @@ export function randomSentence(wordCount, options = {}) {
     for (let i = 0; i < wordCount; i++) {
         const randomIndex = Math.floor(Math.random() * randomWords.length);
         let randomWord = randomWords[randomIndex].lemma;
-
+        
         if (capitalize) {
             randomWord = randomWord.charAt(0).toUpperCase() + randomWord.slice(1);
         }
