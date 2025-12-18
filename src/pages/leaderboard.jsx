@@ -28,7 +28,7 @@ export default function Leaderboard() {
                         <tr className="bg-gray-400 dark:bg-gray-800 text-white">
                             <th className="w-[10%]">#</th>
                             <th colSpan={2} className="w-[70%]">Bruger</th>
-                            <th className="w-[20%] text-right">Points</th>
+                            <th className="w-[20%] text-right">Point</th>
                         </tr>
                     </thead>
                     <tbody>
