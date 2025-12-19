@@ -41,7 +41,7 @@ export default function ProfilePage({ id = null }) {
                 {error !== null ? <div className="bg-red-100 text-red-800 p-4 rounded mb-4">{error}</div> : <>
                     <h2 className="text-2xl font-bold mb-4"> {
                         id !== null ?
-                            profileData ? capitalizeFirstLetters(profileData?.username) + (profileData?.username.slice(-1) === 's' ? "'" : "s ") + "profil" : <>&nbsp;</>
+                            profileData ? capitalizeFirstLetters(profileData?.username) + (profileData?.username.slice(-1) === 's' ? "'" : "s") + " profil" : <>&nbsp;</>
                             : "Min profil"
                     } </h2>
 

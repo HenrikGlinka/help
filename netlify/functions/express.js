@@ -1,4 +1,4 @@
-import express, { request, Router } from "express";
+import express, { Router } from "express";
 import serverless from "serverless-http";
 import cors from 'cors';
 import { MongoClient, ObjectId } from 'mongodb';
@@ -8,7 +8,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendNotification } from "./notifications.js";
 import { randomSentence } from "./randomSentence.js";
-import { capitalize } from "@mui/material";
 
 dotenv.config();
 

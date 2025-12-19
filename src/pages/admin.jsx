@@ -10,6 +10,8 @@ import { RiUserSearchLine } from "react-icons/ri";
 import capitalizeFirstLetters from "../utilities/capitalize-first-letters";
 import UserTag from "../components/user-tag";
 import { HiOutlineClipboardCopy } from "react-icons/hi";
+import { LiaSpinnerSolid } from "react-icons/lia";
+import { CgSpinnerAlt } from "react-icons/cg";
 
 export default function AdminPage() {
 
@@ -22,6 +24,7 @@ export default function AdminPage() {
     const [invites, setInvites] = useState([]);
 
     const [foundUsers, setFoundUsers] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     const [resetPassword, setResetPassword] = useState(null);
 
@@ -61,25 +64,30 @@ export default function AdminPage() {
 
     const handleUserSearch = async (event) => {
         const query = event.target.value;
+
         if (query.length >= 3) {
-            findUsers(query).then(data => setFoundUsers(data.filter(user => user.role !== 'admin')));
+            setIsSearching(true);
+            findUsers(query).then(data => {
+                setFoundUsers(data)
+                setIsSearching(false);
+            });
         } else {
             setFoundUsers([]);
         }
     };
 
     const handleResetPassword = async (username, id) => {
-        if (confirm('Er du sikker på, at du vil nulstille denne brugers adgangskode?')) {
+        if (confirm(`Er du sikker på, at du vil nulstille ${username.slice(-1) === 's' ? username + "'" : username + "s"} adgangskode?`)) {
             const result = await resetUserPassword(id);
-            if (result) {
+            if (result.error !== undefined) {
+                alert.error(result.error);
+            } else if (result.password) {
                 alert.success('Adgangskoden er nu nulstillet.');
                 userSearchInput.current.value = '';
                 setResetPassword({ username, password: result.password });
                 setFoundUsers([]);
-                console.log(result);
-
             } else {
-                alert.error('Der opstod en fejl under nulstillingen af adgangskoden.');
+                alert.error('Der opstod en ukendt fejl ved nulstilling af adgangskoden.');
             }
         }
     };
@@ -198,10 +206,11 @@ export default function AdminPage() {
                         </summary>
                         <label className="!grid grid-cols-[auto_1fr] content-center items-center">
                             <span className="col-span-2">Find bruger:</span>
-                            <RiUserSearchLine />
+                            {isSearching ? <CgSpinnerAlt className="animate-spin [animation-duration:400ms]" /> : <RiUserSearchLine />}
                             <input ref={userSearchInput} onInput={handleUserSearch} type="search" placeholder="Skriv et brugernavn" />
                             {foundUsers.length > 0 && <table className="
                             w-full text-sm mt-4
+                            rounded-lg overflow-hidden
                             [&>tbody>tr>td]:p-2 text-center col-span-2
                             [&>tbody>tr]:nth-[odd]:bg-gray-200 dark:[&>tbody>tr]:nth-[odd]:bg-gray-800
                             [&>tbody>tr>td]:first:text-left [&>thead>tr>th]:first:text-left [&>thead>tr>th]:last:text-right [&>thead>tr>th]:px-2
@@ -216,6 +225,7 @@ export default function AdminPage() {
                                 </tbody>
                             </table>
                             }
+                            {!isSearching && foundUsers?.length === 0 && userSearchInput?.current?.value.length >= 3  && <p className="col-span-2 italic mt-4 text-center text-sm">Ingen brugere fundet.</p>}
 
                             {resetPassword !== null && <div className="mt-4 col-span-2 grid grid-cols-[1fr_auto] gap-y-2">
                                 <h4 className="col-span-2">Ny adgangskode for <i>{resetPassword.username}</i>:</h4>

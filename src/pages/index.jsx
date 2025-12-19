@@ -1,7 +1,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
-import { getOpenRequests, getOpenRequestsByUser, getUserInfo } from "../helpers/api";
+import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
 import { useNavigate } from "react-router";
 import { Skeleton } from "@mui/material";
 import { LuMessageCircleQuestion } from "react-icons/lu";
@@ -18,24 +18,28 @@ export default function IndexPage() {
     const user = useLogin();
     const alert = useAlert();
 
-    const updateInterval = useRef(null); // changed: useRef for interval
-
-
+    const updateTimeout = useRef(null);
+    const keepUpdating = useRef(true);
 
     const updateTickets = async () => {
+
+        if (keepUpdating?.current === true) {
+            clearTimeout(updateTimeout.current);
+            updateTimeout.current = setTimeout(updateTickets, 10000);
+        } else {
+            return;
+        }
 
         if (!user.isLoading && !await user.tokenIsValid()) {
             user.logout();
             return;
         }
-        
+
         await user.update();
 
         const requests = await getOpenRequests(user.data.group);
 
         if (requests.error) return user.logout();
-
-
 
         if (requests.length > 0) {
             const newTicketIds = requests.map(req => req._id);
@@ -53,7 +57,7 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        clearInterval(updateInterval.current);
+        clearTimeout(updateTimeout.current);
 
         if (user.isLoading) return console.log('User data is still loading...');
 
@@ -62,14 +66,14 @@ export default function IndexPage() {
             if (localStorage.getItem('token') === null || !await user.tokenIsValid()) {
                 user.logout();
             } else {
-                updateInterval.current = setInterval(updateTickets, 10000);
+                updateTimeout.current = setTimeout(updateTickets, 10000);
                 updateTickets();
             }
         }
 
         checkAuthAndUpdate();
 
-        return () => clearInterval(updateInterval.current);
+        return () => clearTimeout(updateTimeout.current);
 
     }, [user.isLoading]);
 
