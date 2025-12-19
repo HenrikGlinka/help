@@ -77,7 +77,7 @@ export default function AdminPage() {
     };
 
     const handleResetPassword = async (username, id) => {
-        if (confirm(`Er du sikker på, at du vil nulstille ${username.slice(-1) === 's' ? username + "'" : username + "s"} adgangskode?`)) {
+        if (confirm(`Er du sikker på, at du vil nulstille ${capitalizeFirstLetters(username.slice(-1) === 's' ? username + "'" : username + "s")} adgangskode?`)) {
             const result = await resetUserPassword(id);
             if (result.error !== undefined) {
                 alert.error(result.error);
