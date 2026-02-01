@@ -7,10 +7,7 @@ import { Skeleton } from "@mui/material";
 import { LuMessageCircleQuestion } from "react-icons/lu";
 import messageSound from "../assets/audio/sounds/icq-message.mp3";
 import { useLogin } from "../contexts/login-context";
-import SpecialOffer from "../components/special-offer";
 import { useAlert } from "../contexts/alert-context";
-import CoinDisplay from "../components/coin-display";
-import CoinOffer from "../components/coin-offer";
 
 export default function IndexPage() {
 
@@ -21,11 +18,15 @@ export default function IndexPage() {
     const user = useLogin();
     const alert = useAlert();
 
-    let updateInterval = null;
+    let updateInterval = useRef(null);
 
 
 
     const updateTickets = async () => {
+
+        if (document.hidden) {
+            return;
+        }
 
         if (!user.isLoading && !await user.tokenIsValid()) {
             user.logout();
@@ -53,7 +54,7 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        clearInterval(updateInterval);
+        clearInterval(updateInterval.current);
 
         if (user.isLoading) return console.log('User data is still loading...');
 
@@ -62,14 +63,14 @@ export default function IndexPage() {
             if (localStorage.getItem('token') === null || !await user.tokenIsValid()) {
                 user.logout();
             } else {
-                updateInterval = setInterval(updateTickets, 10000);
+                updateInterval.current = setInterval(updateTickets, 10000);
                 updateTickets();
             }
         }
 
         checkAuthAndUpdate();
 
-        return () => clearInterval(updateInterval);
+        return () => clearInterval(updateInterval.current);
 
     }, [user.isLoading]);
 
