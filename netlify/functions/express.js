@@ -1,4 +1,4 @@
-import express, { request, Router } from "express";
+import express, { Router } from "express";
 import serverless from "serverless-http";
 import cors from 'cors';
 import { MongoClient, ObjectId } from 'mongodb';
@@ -7,6 +7,7 @@ import authenticationMiddleware from './authentication.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendNotification } from "./notifications.js";
+import { randomSentence } from "./randomSentence.js";
 
 dotenv.config();
 
@@ -30,6 +31,25 @@ app.use(express.json());
 app.use("/api/", router);
 
 export const handler = serverless(app);
+
+router.get('/users',authenticationMiddleware, async (request, response) => {
+
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    const { q } = request.query;
+
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const query = q ? { username: { $regex: q, $options: 'i' } } : [];
+        const users = await collection.find(query, {projection: {_id: 1, username: 1, role: 1, group: 1}}).limit(10).toArray();
+        response.json(users);
+    } catch (error) {
+        response.status(500).json({ error: error.message });
+    }
+});
 
 router.post('/users/register', async (request, response) => {
 
@@ -101,7 +121,7 @@ router.post('/users/login', async (request, response) => {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
-                exp: userData.exp || 0,
+                exp: userData?.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
@@ -122,7 +142,7 @@ router.get('/users/me', async (request, response) => {
 });
 
 router.get('/users/me/refresh', authenticationMiddleware, async (request, response) => {
-try {
+    try {
 
         const token = request.headers.authorization?.split(' ')[1];
         const { user } = jwt.verify(token, process.env.JWT_SECRET);
@@ -131,7 +151,7 @@ try {
         const collection = database.collection('users');
 
         const userData = await collection.findOne({ username: user.username.toLowerCase() });
-        
+
         if (!userData) {
             return response.status(401).json({ error: 'Ugyldig bruger.' });
         }
@@ -142,12 +162,133 @@ try {
                 username: userData.username,
                 role: userData.role,
                 group: userData.group,
+                exp: userData?.exp || 0,
             }
         }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
         response.json({ token: newToken });
     } catch (error) {
         console.error('Error refreshing token:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+router.put('/users/me/password', authenticationMiddleware, async (request, response) => {
+    request.on('data', async data => {
+        const { currentPassword, newPassword } = JSON.parse(data.toString());
+
+        if (!currentPassword) {
+            return response.status(400).json({ error: 'Nuværende og ny adgangskode er påkrævet.' });
+        }
+
+        if (!newPassword) {
+            return response.status(400).json({ error: 'Ny adgangskode er påkrævet.' });
+        }
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const userData = await collection.findOne({ _id: new ObjectId(request.user.id) });
+
+        const isValidPassword = await bcrypt.compare(currentPassword, userData.password_hash);
+
+        if (!isValidPassword) {
+            return response.status(401).json({ error: 'Nuværende adgangskode er forkert.' });
+        }
+
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+        await collection.updateOne({ _id: new ObjectId(request.user.id) }, { $set: { password_hash: newPasswordHash } });
+
+        response.json({ success: 'Adgangskoden er blevet opdateret.' });
+    });
+
+});
+
+router.post('/users/:id/password/reset', authenticationMiddleware, async (request, response) => {
+    if (request.user.role !== 'admin') {
+        return response.status(403).json({ error: 'Du har ikke adgang til denne ressource.' });
+    }
+
+    const userId = request.params.id;
+    
+    try {
+        const database = client.db(DB_NAME);
+
+        const collection = database.collection('users');
+
+        const userIsAdmin = await collection.findOne({ _id: new ObjectId(userId), role: 'admin' });
+
+        if (userIsAdmin) {
+            return response.status(403).json({ error: 'Adgangskoden for admin-brugere kan ikke nulstilles via denne metode.' });
+        }
+
+        const newPasswordOptions = { minLength: 5, maxLength: 8, separator: '', capitalize: true };
+        const randomNumber = Math.floor(Math.random() * 9999 + 1).toString().padStart(4, '0');
+        const randomPassword = randomSentence(3, newPasswordOptions) + randomNumber;
+        
+        const newPasswordHash = await bcrypt.hash(randomPassword, 10);
+
+        const result = await collection.updateOne({ _id: new ObjectId(userId) }, { $set: { password_hash: newPasswordHash } });
+       
+        if (result.modifiedCount === 0) {
+            return response.status(404).json({ error: 'Bruger ikke fundet.' });
+        }
+
+        response.json({ message: 'Adgangskoden er blevet nulstillet.', password: randomPassword });
+    } catch (error) {
+        console.error('Error resetting user password:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+router.get('/users/:id/profile', authenticationMiddleware, async (request, response) => {
+    try {
+        const database = client.db(DB_NAME);
+        const users = database.collection('users');
+        const userId = new ObjectId(request.params.id);
+
+        const pipeline = [
+            { $match: { _id: userId } },
+            { $project: { password_hash: 0 } },
+            {
+                $lookup: {
+                    from: 'requests',
+                    let: { uid: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ['$user_id', '$$uid'] } } },
+                        { $count: 'count' }
+                    ],
+                    as: 'questions'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'requests',
+                    let: { uid: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $and: [{ $eq: ['$responder_id', '$$uid'] }, { $ne: ['$completion_date', null] }] } } },
+                        { $count: 'count' }
+                    ],
+                    as: 'answers'
+                }
+            },
+            {
+                $addFields: {
+                    questions_asked: { $ifNull: [{ $arrayElemAt: ['$questions.count', 0] }, 0] },
+                    answers_given: { $ifNull: [{ $arrayElemAt: ['$answers.count', 0] }, 0] }
+                }
+            },
+            { $project: { questions: 0, answers: 0 } }
+        ];
+
+        const [userData] = await users.aggregate(pipeline).toArray();
+
+        if (!userData) {
+            return response.status(404).json({ error: 'Bruger ikke fundet.' });
+        }
+
+        response.json({ user: userData });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
     }
 });
@@ -228,7 +369,6 @@ router.get('/requests/open', authenticationMiddleware, async (request, response)
 
 router.get('/requests/:group/open', authenticationMiddleware, async (request, response) => {
     try {
-
         const group = request.params.group;
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
@@ -244,8 +384,6 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
         console.log(`Found ${requests.length} requests for group "${group}"`);
         console.log(query);
 
-
-
         requests.forEach(result => {
             result.isOwner = result.user_id.toString() === request.user.id;
             result.isAdmin = request.user.role === 'admin';
@@ -255,8 +393,6 @@ router.get('/requests/:group/open', authenticationMiddleware, async (request, re
     } catch (error) {
         console.error('Error fetching open requests:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
-    } finally {
-
     }
 });
 
@@ -304,6 +440,7 @@ router.post('/requests', authenticationMiddleware, async (request, response) => 
                 user_id: userId,
                 creation_date: new Date(),
                 owner: request.user.username,
+                owner_exp: request.user.exp || 0,
             };
 
             if (request.user.group) newRequest.group = request.user.group.toLowerCase();
@@ -337,21 +474,34 @@ router.put('/requests/:id/start', authenticationMiddleware, async (request, resp
     const requestId = request.params.id;
 
     console.log(request.user);
-    
+
 
     if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
     else if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
-    else if (request.user.role !== "admin") return response.status(403).json({ error: 'Du har ikke rettigheder til at starte denne anmodning.' });
     else try {
 
         const database = client.db(DB_NAME);
         const collection = database.collection('requests');
+
+        // Check if the user offering help is already assigned to another open request
+        const existingAssignment = await collection.findOne({
+            responder_id: new ObjectId(request.user.id),
+            completion_date: { $exists: false }
+        });
+
+        if (existingAssignment) {
+            return response.status(400).json({ error: 'Du kan kun hjælpe én person ad gangen.' });
+        }
 
         const result = await collection.updateOne(
             { _id: new ObjectId(requestId) },
             {
                 $set: {
                     response_date: new Date(),
+                    responder_id: new ObjectId(request.user.id),
+                    responder_name: request.user.username,
+                    responder_group: request.user.group,
+                    responder_exp: request.user.exp || 0,
                 }
             }
         );
@@ -376,8 +526,6 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
     if (!requestId) return response.status(400).json({ error: 'Anmodnings-ID er påkrævet.' });
     if (!ObjectId.isValid(requestId)) return response.status(400).json({ error: 'Ugyldigt anmodnings-ID format.' });
 
-
-
     try {
 
         const database = client.db(DB_NAME);
@@ -385,6 +533,7 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
 
         const existingRequest = await collection.findOne({ _id: new ObjectId(requestId) });
         if (!existingRequest) return response.status(404).json({ error: 'Anmodning ikke fundet.' });
+
         if (existingRequest.user_id.toString() !== request.user.id && request.user.role !== 'admin') {
             return response.status(403).json({ error: 'Du har ikke rettigheder til at fuldføre denne anmodning.' });
         }
@@ -401,6 +550,25 @@ router.put('/requests/:id/complete', authenticationMiddleware, async (request, r
         if (result.modifiedCount === 0) {
             return response.status(404).json({ error: 'Anmodning ikke fundet eller allerede fuldført.' });
         }
+
+        const helpRequest = await collection.findOne({ _id: new ObjectId(requestId) });
+
+        if (helpRequest.responder_id && helpRequest.responder_id.toString() !== helpRequest.user_id.toString()) {
+            const usersCollection = database.collection('users');
+            await usersCollection.updateOne(
+                { _id: new ObjectId(helpRequest.user_id) },
+                { $inc: { exp: 1 } }
+            );
+        }
+
+        if (helpRequest.responder_id) {
+            const usersCollection = database.collection('users');
+            await usersCollection.updateOne(
+                { _id: new ObjectId(helpRequest.responder_id) },
+                { $inc: { exp: 3 } }
+            );
+        }
+
         response.status(200).json({ message: 'Anmodning markeret som fuldført.' });
     } catch (error) {
         console.error('Error completing request:', error);
@@ -537,6 +705,21 @@ router.delete('/invites/:id', authenticationMiddleware, async (request, response
         response.status(200).json({ message: 'Invitation slettet med succes.' });
     } catch (error) {
         console.error('Error deleting invite:', error);
+        response.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+router.get('/leaderboard', authenticationMiddleware, async (request, response) => {
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection('users');
+        const leaderboard = await collection.find({}, { projection: { _id: 1, username: 1, exp: 1, group: 1 } })
+            .sort({ exp: -1 })
+            .limit(10)
+            .toArray();
+        response.json(leaderboard);
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
         response.status(500).json({ error: 'Intern serverfejl' });
     }
 });

@@ -1,7 +1,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import QueueCard from "../components/queue-card";
-import { getOpenRequests, getOpenRequestsByUser, getUserInfo } from "../helpers/api";
+import { getOpenRequests, getOpenRequestsByUser } from "../helpers/api";
 import { useNavigate } from "react-router";
 import { Skeleton } from "@mui/material";
 import { LuMessageCircleQuestion } from "react-icons/lu";
@@ -33,8 +33,9 @@ export default function IndexPage() {
             return;
         }
 
-        const requests = await getOpenRequests(user.data.group);
+        await user.update();
 
+        const requests = await getOpenRequests(user.data.group);
 
         if (requests.error) return user.logout();
 
@@ -112,7 +113,6 @@ export default function IndexPage() {
                         <button onClick={askNewQuestion} className="approve w-full"><LuMessageCircleQuestion className="mr-1" size={20} />
                             Nyt spørgsmål
                         </button>
-                        {/* <CoinDisplay /> */}
                     </li>
                 </menu>
             </main>
