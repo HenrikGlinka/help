@@ -7,6 +7,7 @@ import { postLogin } from '../helpers/api';
 import { useLogin } from '../contexts/login-context';
 import { useAlert } from '../contexts/alert-context';
 import Spinner from '../components/spinner';
+import Captcha from '../components/captcha';
 
 export default function LoginPage() {
 
@@ -15,6 +16,7 @@ export default function LoginPage() {
 
     const user = useLogin();
     const alert = useAlert();
+    const [captchaRisk, setCaptchaRisk] = useState(null);
 
     const username = params.get('user') || '';
 
@@ -24,10 +26,20 @@ export default function LoginPage() {
 
     async function submitHandler(event) {
         event.preventDefault();
+        
+        if (captchaRisk === null) {
+            alert.error("Captcha ikke fuldført", "Du skal bekræfte, at du ikke er en robot.");
+            return;
+        } else if (isNaN(captchaRisk?.riskAnalysis?.score) || captchaRisk?.riskAnalysis?.score < 0.5) {
+            alert.error("Mistænkelig aktivitet", "Din captcha score er for lav. Prøv venligst igen.");
+            return;
+        }
+
+
 
         const form = event.target;
         form.inert = true;
-
+        
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
@@ -76,6 +88,8 @@ export default function LoginPage() {
                         <span>Adgangskode</span>
                         <input type="password" name="password" placeholder="Skriv din adgangskode" autoComplete='off' />
                     </label>
+
+                    <Captcha setRisk={setCaptchaRisk} />
 
                     <button ref={submitButton} className="approve" type="submit">
                         <span>Log ind</span>
