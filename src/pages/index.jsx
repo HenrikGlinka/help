@@ -11,31 +11,28 @@ import { useAlert } from "../contexts/alert-context";
 
 export default function IndexPage() {
 
+    const TICKETS_UPDATE_INTERVAL = 12000;
+
+    const navigate = useNavigate();
+    const updateInterval = useRef(null);
+    
     const [tickets, setTickets] = useState(null);
     const previousTickets = useRef([]);
-    const navigate = useNavigate();
 
     const user = useLogin();
     const alert = useAlert();
 
-    const updateTimeout = useRef(null);
-    const keepUpdating = useRef(true);
+    useEffect(() => {
+        if (localStorage.getItem('token') === null) {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     const updateTickets = async () => {
 
-        if (keepUpdating?.current === true) {
-            clearTimeout(updateTimeout.current);
-            updateTimeout.current = setTimeout(updateTickets, 10000);
-        } else {
+        if (document.hidden) {
             return;
         }
-
-        if (!user.isLoading && !await user.tokenIsValid()) {
-            user.logout();
-            return;
-        }
-
-        await user.update();
 
         const requests = await getOpenRequests(user.data.group);
 
@@ -57,7 +54,7 @@ export default function IndexPage() {
     }
 
     useEffect(() => {
-        clearTimeout(updateTimeout.current);
+        clearInterval(updateInterval.current);
 
         if (user.isLoading) return console.log('User data is still loading...');
 
@@ -65,18 +62,17 @@ export default function IndexPage() {
 
             if (localStorage.getItem('token') === null || !await user.tokenIsValid()) {
                 user.logout();
-            } else {
-                updateTimeout.current = setTimeout(updateTickets, 10000);
+            } else if (updateInterval.current === null) {
+                updateInterval.current = setInterval(updateTickets, TICKETS_UPDATE_INTERVAL);
                 updateTickets();
             }
         }
 
         checkAuthAndUpdate();
 
-        return () => clearTimeout(updateTimeout.current);
+        return () => clearInterval(updateInterval.current);
 
     }, [user.isLoading]);
-
 
     async function askNewQuestion() {
         alert.hide();

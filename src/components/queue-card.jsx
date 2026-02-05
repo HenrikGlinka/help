@@ -76,8 +76,8 @@ export default function QueueCard({ ticket, onUpdate = null }) {
                 <p className="text-sm text-gray-500 my-1 truncate min-w-0">{ticket.description}</p>
             </details>
 
-            <p className="[&:first-letter]:uppercase min-w-0">
-                <UserTag username={ticket.owner} level={getLevel(ticket.owner_exp)} group={ticket.group} shorten /></p>
+            <div className="[&:first-letter]:uppercase min-w-0">
+                <UserTag username={ticket.owner} level={getLevel(ticket.owner_exp)} group={ticket.group} shorten /></div>
             <p className="col-span-2 text-sm self-center whitespace-nowrap ml-1">{formatDate(ticket.creation_date, 'kl. HH:mm')}</p>
 
             {(!ticket.response_date || ticket.isOwner || ticket.isAdmin) &&
