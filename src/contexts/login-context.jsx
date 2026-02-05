@@ -38,6 +38,8 @@ export function LoginProvider({ children }) {
         setRecievesNotifications(await isSubscribedToNotifications());
         /* localStorage.setItem('group', result.user?.group || 'all'); */
         setIsLoading(false);
+
+        return result.user;
     };
 
     const logout = () => {
@@ -48,8 +50,7 @@ export function LoginProvider({ children }) {
     }
 
     const tokenIsValid = async () => {
-        const result = await getUserInfo();
-        return result?.user !== undefined;
+        return update()?.user !== null;
     }
 
     return (
